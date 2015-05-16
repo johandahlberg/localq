@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import Pyro4
 import sys
+from LocalQ import Job
 
 __author__ = 'dankle'
 
@@ -42,7 +43,8 @@ def main():
 
     # you have to change the URI below to match your own host/port.
     localqd = Pyro4.Proxy("PYRONAME:localqd")
-    jobid = localqd.add(cmd, num_cores)
+    #jobid = localqd.add(cmd, num_cores)
+    jobid = localqd.add(num_cores=num_cores, cmd=cmd)
     print "Job added to the queue with id " + str(jobid)
 
 
