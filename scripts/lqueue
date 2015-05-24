@@ -27,6 +27,8 @@ def parse_cli():
             cliargs[args[0]] = args[1]
             args.pop(0)
             args.pop(0)
+            if not args:
+                break
 
     return (cliargs, args)
 
