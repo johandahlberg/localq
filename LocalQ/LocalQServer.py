@@ -55,7 +55,6 @@ class LocalQServer():
                         pass
 
                 sortedqueue = sorted(self.queue, key=methodcaller('priority'), reverse=True)
-                print [j.priority() for j in sortedqueue]
 
                 # check if new jobs can be started
                 for job in sortedqueue:
@@ -65,7 +64,6 @@ class LocalQServer():
                     cores_available = self.num_cores_available - n_cores_busy
 
                     if cores_available >= job.num_cores:
-                        print job.info()
                         job.run()
                         self.running.append(job)
                         self.queue.remove(job)
