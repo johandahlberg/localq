@@ -1,0 +1,46 @@
+#!/usr/bin/env python
+import Pyro4
+import sys
+import os
+
+__author__ = 'dankle'
+
+usage = """Usage:
+    lqueue.py [-u URIFILE]
+
+Options:
+  -u URIFILE  file where the uri for the localqd is written
+"""
+
+
+def parse_cli():
+    args = sys.argv
+    args.pop(0)  # remove script name itself
+    cliargs = {'-u': "~/tmp/localqd",
+               '-h': None}
+
+    if args:
+        while str(args[0]) in cliargs.keys():
+            if args[0] == '-h':
+                print usage
+                sys.exit(1)
+            cliargs[args[0]] = args[1]
+            args.pop(0)
+            args.pop(0)
+
+    return (cliargs, args)
+
+
+def main():
+    (cliargs, cmd) = parse_cli()
+
+    pf = file(os.path.expanduser(cliargs["-u"]), 'r')
+    uri = str(pf.read().strip())
+    pf.close()
+
+    localqd = Pyro4.Proxy(uri)
+    print localqd.list_queue()
+    #jobid = localqd.add(num_cores=cliargs["-n"], cmd=cmd, rundir=os.getcwd())
+
+if __name__ == "__main__":
+    sys.exit(main())

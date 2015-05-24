@@ -26,11 +26,13 @@ setup(name='localq',
     ],
     keywords = [
         'scheduler', 
-        'cluster'
+        'cluster',
+        'load-balancer'
     ],
     scripts = [
         'scripts/localqd',
-        'scripts/lbatch'
+        'scripts/lbatch',
+        'scripts/lqueue'
     ],
     classifiers = [
         "Programming Language :: Python",

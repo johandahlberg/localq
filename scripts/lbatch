@@ -1,15 +1,21 @@
 #!/usr/bin/env python
 import Pyro4
 import sys
-from LocalQ import Job
+import os
 
 __author__ = 'dankle'
 
 usage = """Usage:
-    lbatch.py [-n N] sh myscript.sh
-    lbatch.py [-n N] ls
-    lbatch.py [-n N] python mypythonscript.py
+    lbatch.py [-n N] [-o STDOUT] [-u URIFILE] sh myscript.sh
+    lbatch.py [-n N] [-o STDOUT] [-u URIFILE] ls
+    lbatch.py [-n N] [-o STDOUT] [-u URIFILE] python mypythonscript.py
+
+Options:
+  -n N        number of cores to use.
+  -o STDOUT   file for stdout
+  -u URIFILE  file where the uri for the localqd is written
 """
+
 
 def parse_cli():
     args = sys.argv
@@ -19,13 +25,15 @@ def parse_cli():
         print usage
         sys.exit(1)
 
-    num_cores = 1
-    if args[0] == "-n":
-        try:
-            num_cores = int(args[1])
-        except  ValueError:
+    cliargs = {'-n': 1,
+               '-u': "~/tmp/localqd",
+               '-h': None}
+
+    while str(args[0]) in cliargs.keys():
+        if args[0] == '-h':
             print usage
             sys.exit(1)
+        cliargs[args[0]] = args[1]
         args.pop(0)
         args.pop(0)
 
@@ -33,20 +41,23 @@ def parse_cli():
         print usage
         sys.exit(1)
 
-    return [num_cores, args]
+    return (cliargs, args)
 
 
 def main():
-    (num_cores, cmd) = parse_cli()
-    print "Num cores requested: " + str(num_cores)
+    (cliargs, cmd) = parse_cli()
+
+    print str(cliargs)
     print "command to run: " + str(cmd)
 
-    # you have to change the URI below to match your own host/port.
-    localqd = Pyro4.Proxy("PYRONAME:localqd")
-    #jobid = localqd.add(cmd, num_cores)
-    jobid = localqd.add(num_cores=num_cores, cmd=cmd)
-    print "Job added to the queue with id " + str(jobid)
+    pf = file(os.path.expanduser(cliargs["-u"]), 'r')
+    uri = str(pf.read().strip())
+    pf.close()
 
+    localqd = Pyro4.Proxy(uri)
+
+    jobid = localqd.add(num_cores=cliargs["-n"], cmd=cmd, rundir=os.getcwd())
+    print "Job added to the queue with id " + str(jobid)
 
 if __name__ == "__main__":
     sys.exit(main())
