@@ -6,40 +6,58 @@
 
 * Pyro4 python module (`pip install Pyro4`)
 
-# Launching the localqd server
+# TL;DR.
 
-Launching the server is a two-step procedures. First, the Pyro4 name server needs to be started:
-
+To start a server with 1 core available for jobs, polling the queue every 30 seconds, run
+ 
 ```bash
-pyro4-ns -n localhost &
+localqd start
 ```
 
-Then, `localqd` can be started:
+Jobs can now be submitted to this server: 
 
 ```bash
-python localqd.py -n 4 > log.txt 2>&1 &
+lbatch ls
+lbatch sh my_script.sh
 ```
 
-The flag `-n` specifies the number of cores available to submitted jobs. 
+To list the jobs, use `lqueue`: 
+
+```bash
+lqueue
+```
+
+When you're done, the server daemon should be stopped: 
+
+```bash
+localqd stop
+```
+
+# Launching the localqd daemon
+
+To start a server with 8 cores available for jobs, polling the queue every 15 seconds, run 
+
+```bash
+localqd -n 8 -i 15 -u ~/tmp/mysecondserver start
+```
+
+This will create a file containing the server URI (`~/tmp/mysecondserver `) and a file containing the servers PID (`~/tmp/mysecondserver.pid`). Since the URI is written to a file, the user can create an arbitrary number of separate queues by setting separate URI files for each instance of `localqd`. 
 
 # Submitting jobs
 
-Jobs are submitted to localq using `lbatch.py`
+Jobs are submitted to localq using `lbatch`
 
 ```bash
-python lbatch.py -n 1 ls -lah
-python lbatch.py -n 1 hostname
-python lbatch.py -n 2 echo "Two Core Job"
+python lbatch -n 1 -u ~/tmp/mysecondserver ls -lah
+python lbatch -n 1 -u ~/tmp/mysecondserver hostname
+python lbatch -n 2 -u ~/tmp/mysecondserver echo "Two Core Job"
 ```
 
 The flag `-n` specifies the number of cores requested for the job (default `1` if omitted). The rest is the command that will be executed by `localqd.py`
 
 # TODO
 
-* Daemonize the server 
- * syntax `python localqd.py [start|stop|restart] `
 * Settable strategy to prioritize jobs when launching localqd
- * `fcfs` = First come, first serve
- * `mcf` = Prioritize jobs with largest number of requested cores highest
- * `python localqd.py -s [fcfs|mcf|...] [start|stop|restart] `
+ * [x] `fifo` = First come, first serve
+ * [ ] `mcf` = Prioritize jobs with largest number of requested cores highest
 
