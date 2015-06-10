@@ -60,4 +60,5 @@ The flag `-n` specifies the number of cores requested for the job (default `1` i
 * Settable strategy to prioritize jobs when launching localqd
  * [x] `fifo` = First come, first serve
  * [ ] `mcf` = Prioritize jobs with largest number of requested cores highest
-
+* `linfo -j 123`
+* `lcancel -j 123`
