@@ -15,7 +15,7 @@ class LocalQServer():
         self.priority_method = priority_method
         self.stdout = stdout
         self.stderr = stderr
-        self.queue = []
+        self.pending = []
         self.running = []
         self.completed = []
         self.failed = []
@@ -24,7 +24,7 @@ class LocalQServer():
     def add(self, cmd, num_cores, rundir=None, stdout=None, stderr=None):
         job = localq.Job(cmd, num_cores, stdout=stdout, stderr=stderr, rundir=rundir)
         job.set_jobid(self.next_jobid)
-        self.queue.append(job)
+        self.pending.append(job)
         self.next_jobid += 1
         return job.jobid
 
@@ -33,7 +33,7 @@ class LocalQServer():
         retstr += "JOBID\tPRIO\tSTATUS\tNUM_CORES\tPRIO_METHOD\tCMD\n"
         for j in self.running:
             retstr += j.info() + "\n"
-        for j in self.queue:
+        for j in self.pending:
             retstr += j.info() + "\n"
         for j in self.completed:
             retstr += j.info() + "\n"
@@ -48,7 +48,7 @@ class LocalQServer():
         :param jobid: a job id to search for
         :return: Any of Job.PENDING, RUNNING, COMPLETED or FAILED. If no job with the given ID is found, None is returned.
         """
-        if jobid in [j.jobid for j in self.queue]:
+        if jobid in [j.jobid for j in self.pending]:
             return localq.Job.PENDING
         if jobid in [j.jobid for j in self.running]:
             return localq.Job.RUNNING
@@ -80,7 +80,7 @@ class LocalQServer():
                     else:  # if job is still running, keep it in self.running
                         pass
 
-                sortedqueue = sorted(self.queue, key=methodcaller('priority'), reverse=True)
+                sortedqueue = sorted(self.pending, key=methodcaller('priority'), reverse=True)
 
                 # check if new jobs can be started
                 for job in sortedqueue:
@@ -92,7 +92,7 @@ class LocalQServer():
                     if cores_available >= job.num_cores:
                         job.run()
                         self.running.append(job)
-                        self.queue.remove(job)
+                        self.pending.remove(job)
                     else:  # If highest-priority job can't start, don't try to start next job until next cycle
                         continue
 
