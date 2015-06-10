@@ -18,6 +18,7 @@ class LocalQServer():
         self.queue = []
         self.running = []
         self.completed = []
+        self.failed = []
         self.next_jobid = 1
 
     def add(self, cmd, num_cores, rundir=None, stdout=None, stderr=None):
@@ -36,8 +37,27 @@ class LocalQServer():
             retstr += j.info() + "\n"
         for j in self.completed:
             retstr += j.info() + "\n"
+        for j in self.failed:
+            retstr += j.info() + "\n"
         return retstr.strip("\n")
 
+    def get_status(self, jobid):
+        """
+        Check in which state (list) a job is.
+        Jobs are moved between lists every self.interval seconds (see LocalQServer.run() for implementation)
+        :param jobid: a job id to search for
+        :return: Any of Job.PENDING, RUNNING, COMPLETED or FAILED. If no job with the given ID is found, None is returned.
+        """
+        if jobid in [j.jobid for j in self.queue]:
+            return localq.Job.PENDING
+        if jobid in [j.jobid for j in self.running]:
+            return localq.Job.RUNNING
+        if jobid in [j.jobid for j in self.completed]:
+            return localq.Job.COMPLETED
+        if jobid in [j.jobid for j in self.failed]:
+            return localq.Job.FAILED
+        else:
+            return None
 
     def run(self):
         print "Starting localqd with {} available cores".format(self.num_cores_available)
@@ -48,10 +68,16 @@ class LocalQServer():
 
                 # check which running jobs are completed
                 for job in self.running:
-                    if job.status() == localq.Job.COMPLETED or job.status() == localq.Job.FAILED:
+                    # if job is completed, move to self.completed
+                    if job.status() == localq.Job.COMPLETED:
                         self.running.remove(job)
                         self.completed.append(job)
-                    else:  # if job is still running, or has failed
+
+                    # if job failed, move to self.failed
+                    elif job.status() == localq.Job.FAILED:
+                        self.running.remove(job)
+                        self.failed.append(job)
+                    else:  # if job is still running, keep it in self.running
                         pass
 
                 sortedqueue = sorted(self.queue, key=methodcaller('priority'), reverse=True)
