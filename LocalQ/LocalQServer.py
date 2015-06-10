@@ -20,10 +20,10 @@ class LocalQServer():
         self.completed = []
         self.next_jobid = 1
 
-    def add(self, cmd, num_cores, rundir=None):
-        job = localq.Job(cmd, num_cores, stdout=self.stdout, stderr=self.stderr, rundir=rundir)
-        self.queue.append(job)
+    def add(self, cmd, num_cores, rundir=None, stdout=None, stderr=None):
+        job = localq.Job(cmd, num_cores, stdout=stdout, stderr=stderr, rundir=rundir)
         job.set_jobid(self.next_jobid)
+        self.queue.append(job)
         self.next_jobid += 1
         return job.jobid
 

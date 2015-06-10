@@ -27,6 +27,7 @@ def parse_cli():
 
     cliargs = {'-n': 1,
                '-u': "~/tmp/localqd",
+               '-o': None,
                '-h': None}
 
     while str(args[0]) in cliargs.keys():
@@ -56,7 +57,9 @@ def main():
 
     localqd = Pyro4.Proxy(uri)
 
-    jobid = localqd.add(num_cores=cliargs["-n"], cmd=cmd, rundir=os.getcwd())
+    jobid = localqd.add(num_cores=cliargs["-n"], cmd=cmd, rundir=os.getcwd(),
+                        stderr=cliargs["-o"], stdout=cliargs["-o"])
+
     print "Job added to the queue with id " + str(jobid)
 
 if __name__ == "__main__":

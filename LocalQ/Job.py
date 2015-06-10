@@ -11,7 +11,7 @@ class Job:
 
     """ A command line job to run with a specified number of cores
     """
-    def __init__(self, cmd, num_cores=1, stdout="/dev/null", stderr="/dev/null", priority_method="fifo", rundir=None):
+    def __init__(self, cmd, num_cores=1, stdout=None, stderr=None, priority_method="fifo", rundir=None):
         self.cmd = cmd
         self.num_cores = int(num_cores)
         self.stdout = stdout
@@ -26,6 +26,10 @@ class Job:
 
     def run(self):
         try:
+            if not self.stdout:
+                self.stdout = self.rundir + "/localq-" + str(self.jobid) + ".out"
+            if not self.stderr:
+                self.stderr = self.rundir + "/localq-" + str(self.jobid) + ".out"
             if self.rundir:
                 os.chdir(self.rundir)
             self.proc = subprocess.Popen(self.cmd, stdout=open(self.stdout, 'a'), stderr=open(self.stderr, 'a'))
