@@ -51,16 +51,24 @@ def main():
     print str(cliargs)
     print "command to run: " + str(cmd)
 
+    requested_cores = cliargs["-n"]
+
     pf = file(os.path.expanduser(cliargs["-u"]), 'r')
     uri = str(pf.read().strip())
     pf.close()
 
     localqd = Pyro4.Proxy(uri)
 
-    jobid = localqd.add(num_cores=cliargs["-n"], cmd=cmd, rundir=os.getcwd(),
-                        stderr=cliargs["-o"], stdout=cliargs["-o"])
+    num_server_cores = localqd.get_server_cores()
 
-    print "Job added to the queue with id " + str(jobid)
+    if requested_cores <= num_server_cores:
+        jobid = localqd.add(num_cores=requested_cores, cmd=cmd, rundir=os.getcwd(),
+                        stderr=cliargs["-o"], stdout=cliargs["-o"])
+        print "Job added to the queue with id " + str(jobid)
+        return 0
+    else:
+        print "ERROR: Tried to submit job with more requested cores than available on the server. Job would never run."
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

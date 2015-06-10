@@ -101,3 +101,10 @@ class LocalQServer():
         thread = threading.Thread(target=check_queue)
         thread.setDaemon(True)
         thread.start()
+
+    def get_server_cores(self):
+        """
+        :return: Number of cores available to the server
+        """
+        return self.num_cores_available
+
