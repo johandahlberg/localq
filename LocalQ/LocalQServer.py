@@ -68,8 +68,12 @@ class LocalQServer():
         retval = 0
         for j in self.running:
             retval = j.kill()
+            self.running.remove(j)
+            self.failed.append(j)
         for j in self.pending:
             retval = j.kill()
+            self.pending.remove(j)
+            self.failed.append(j)
         for j in self.completed:
             pass
         for j in self.failed:
