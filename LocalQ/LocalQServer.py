@@ -59,6 +59,23 @@ class LocalQServer():
         else:
             return None
 
+    def stop_job_with_id(self, jobid):
+        """
+        stop a job with a give ID
+        :param jobid: Job ID of job to stop
+        :return: the jobs
+        """
+        retval = 0
+        for j in self.running:
+            retval = j.kill()
+        for j in self.pending:
+            retval = j.kill()
+        for j in self.completed:
+            pass
+        for j in self.failed:
+            pass
+        return retval
+
     def run(self):
         print "Starting localqd with {} available cores".format(self.num_cores_available)
         print "Checking queue every {} seconds".format(self.interval)

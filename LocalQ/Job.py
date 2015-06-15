@@ -37,7 +37,14 @@ class Job:
             print "job failed to run, are there pipes in the command line?"
 
     def kill(self):
-        pass
+        """
+        Send the jobs process KILLSIG and return its status afterwards
+        :return: job status after sending KILLSIG
+        """
+        if self.proc:
+            self.proc.kill()
+
+        return self.status()
 
     def status(self):
         if self.proc:
