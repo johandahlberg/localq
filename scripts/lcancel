@@ -1,0 +1,26 @@
+#!/usr/bin/env python
+
+import localq
+import argparse
+import sys, os
+import Pyro4
+
+__author__ = 'dankle'
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument('-j', help="Number of available cores", action="store", required=False, default=1, type=int)
+    ap.add_argument('-u', help="URI file path", action="store", required=False, default="~/tmp/localqd", type=str)
+    opts = ap.parse_args()
+
+    pf = file(os.path.expanduser(opts.u), 'r')
+    uri = str(pf.read().strip())
+    pf.close()
+
+    localqd = Pyro4.Proxy(uri)
+    print localqd.stop_job_with_id(opts.j)
+
+if __name__ == "__main__":
+    sys.exit(main())
+

@@ -32,7 +32,8 @@ setup(name='localq',
     scripts = [
         'scripts/localqd',
         'scripts/lbatch',
-        'scripts/lqueue'
+        'scripts/lqueue', 
+        'scripts/lcancel'
     ],
     classifiers = [
         "Programming Language :: Python",
