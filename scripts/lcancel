@@ -10,7 +10,7 @@ __author__ = 'dankle'
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument('-j', help="Number of available cores", action="store", required=False, default=1, type=int)
+    ap.add_argument('-j', help="Number of available cores", action="store", required=True, type=int)
     ap.add_argument('-u', help="URI file path", action="store", required=False, default="~/tmp/localqd", type=str)
     opts = ap.parse_args()
 
