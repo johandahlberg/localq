@@ -35,14 +35,17 @@ def parse_cli():
 
 def main():
     (cliargs, cmd) = parse_cli()
-
-    pf = file(os.path.expanduser(cliargs["-u"]), 'r')
-    uri = str(pf.read().strip())
-    pf.close()
+    urifile = os.path.expanduser(cliargs["-u"])
+    if os.path.exists(urifile):
+        pf = file(urifile, 'r')
+        uri = str(pf.read().strip())
+        pf.close()
+    else:
+        print "Could not find file " + str(urifile) + ". Is the localq daemon running?"
+        sys.exit(1)
 
     localqd = Pyro4.Proxy(uri)
     print localqd.list_queue()
-    #jobid = localqd.add(num_cores=cliargs["-n"], cmd=cmd, rundir=os.getcwd())
 
 if __name__ == "__main__":
     sys.exit(main())

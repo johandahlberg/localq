@@ -23,7 +23,7 @@ class LocalQDaemon(localq.Daemon):
         self.localq_stderr = urifile + ".stderr.txt"
 
     def stop(self):
-        localq.Daemon.stop(self)
+        # First, kill all jobs
         try:
             pf = file(self.urifile,'r')
             uri = str(pf.read().strip())
@@ -37,11 +37,15 @@ class LocalQDaemon(localq.Daemon):
             return  # not an error in a restart
         else:
             os.remove(self.urifile)
+            localqd = Pyro4.Proxy(uri)
+            #localqd.stop_all_jobs()
+
+        # Finally, run the
+        localq.Daemon.stop(self)
 
     def run(self):
         self.pyrodaemon = Pyro4.core.Daemon()
-        self.localqserver = localq.LocalQServer(self.num_cores, self.interval, self.priority_method,
-                                                stdout=self.localq_stdout, stderr=self.localq_stderr)
+        self.localqserver = localq.LocalQServer(self.num_cores, self.interval, self.priority_method)
         self.uri = self.pyrodaemon.register(self.localqserver)
 
         # Check for a urifile to see if the daemon already runs
