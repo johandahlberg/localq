@@ -62,6 +62,8 @@ class LocalQDaemon(localq.Daemon):
             sys.exit(1)
 
         file(self.urifile,'w+').write("%s\n" % self.uri)
+        import stat
+        os.chmod(self.urifile, stat.S_IRUSR)
 
         print self.uri
         print self.urifile
