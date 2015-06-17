@@ -22,6 +22,10 @@ class LocalQServer():
         self.jobs.append(job)
         return job.jobid
 
+    def add_script(self, script, num_cores, rundir, stdout, stderr):
+        cmd = ["sh", script]
+        return self.add(cmd, num_cores, stdout=stdout, stderr=stderr, rundir=rundir)
+
     def get_new_jobid(self):
         """
         Method to get a new jobid to use for a job. Increments internal jobid tracker variable each time it's called.
