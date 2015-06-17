@@ -22,7 +22,7 @@ setup(name='localq',
         'Pyro4'
     ],
     packages = [
-        'LocalQ'
+        'localq'
     ],
     keywords = [
         'scheduler', 
