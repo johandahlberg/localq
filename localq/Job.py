@@ -10,6 +10,7 @@ class Job:
     PENDING = "PENDING"
     RUNNING = "RUNNING"
     CANCELLED = "CANCELLED"
+    NOT_FOUND = "NOT_FOUND"
 
     """ A command line job to run with a specified number of cores
     """
