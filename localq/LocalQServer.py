@@ -10,7 +10,7 @@ from operator import methodcaller
 
 class LocalQServer():
     def __init__(self, num_cores_available, interval, priority_method):
-        self.num_cores_available = num_cores_available
+        self.num_cores_available = int(num_cores_available)
         self.interval = float(interval)
         self.priority_method = priority_method
         self.jobs = []
@@ -18,9 +18,13 @@ class LocalQServer():
 
     def add(self, cmd, num_cores, rundir=None, stdout=None, stderr=None, name=None):
         job = localq.Job(cmd, num_cores, stdout=stdout, stderr=stderr, rundir=rundir, name=name)
-        job.set_jobid(self.get_new_jobid())
-        self.jobs.append(job)
-        return job.jobid
+        # if number of requested cores is bigger then the number of cores available to the system, fail submission.
+        if job.num_cores > self.num_cores_available:
+            return None
+        else:
+            job.set_jobid(self.get_new_jobid())
+            self.jobs.append(job)
+            return job.jobid
 
     def add_script(self, script, num_cores, rundir, stdout, stderr, name):
         cmd = ["sh", script]
