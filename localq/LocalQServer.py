@@ -16,15 +16,15 @@ class LocalQServer():
         self.jobs = []
         self._last_jobid = 0
 
-    def add(self, cmd, num_cores, rundir=None, stdout=None, stderr=None):
-        job = localq.Job(cmd, num_cores, stdout=stdout, stderr=stderr, rundir=rundir)
+    def add(self, cmd, num_cores, rundir=None, stdout=None, stderr=None, name=None):
+        job = localq.Job(cmd, num_cores, stdout=stdout, stderr=stderr, rundir=rundir, name=name)
         job.set_jobid(self.get_new_jobid())
         self.jobs.append(job)
         return job.jobid
 
-    def add_script(self, script, num_cores, rundir, stdout, stderr):
+    def add_script(self, script, num_cores, rundir, stdout, stderr, name):
         cmd = ["sh", script]
-        return self.add(cmd, num_cores, stdout=stdout, stderr=stderr, rundir=rundir)
+        return self.add(cmd, num_cores, stdout=stdout, stderr=stderr, rundir=rundir, name=name)
 
     def get_new_jobid(self):
         """
@@ -35,7 +35,7 @@ class LocalQServer():
         return self._last_jobid
 
     def list_queue(self):
-        retstr = "JOBID\tPRIO\tSTATUS\tNUM_CORES\tSTART_TIME\tEND_TIME\tCMD\n"
+        retstr = "JOBID\tPRIO\tSTATUS\tNUM_CORES\tSTART_TIME\tEND_TIME\tNAME\tCMD\n"
         for j in self.jobs:
             retstr += j.info() + "\n"
         return retstr.strip("\n")

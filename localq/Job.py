@@ -14,7 +14,7 @@ class Job:
 
     """ A command line job to run with a specified number of cores
     """
-    def __init__(self, cmd, num_cores=1, stdout=None, stderr=None, priority_method="fifo", rundir=None):
+    def __init__(self, cmd, num_cores=1, stdout=None, stderr=None, priority_method="fifo", rundir=None, name=None):
         self.cmd = cmd
         self.num_cores = int(num_cores)
         self.stdout = stdout
@@ -27,9 +27,15 @@ class Job:
         self.start_time = None
         self.end_time = None
         self._status = Job.PENDING
+        if name is not None:
+            self.name = name
+        else:
+            self.name = None
 
     def set_jobid(self, jobid):
         self.jobid = jobid
+        if self.name is None:
+            self.name = "localq-" + str(self.jobid)
 
     def run(self):
         now = self._get_formatted_now()
@@ -118,12 +124,13 @@ class Job:
             return -1 * self.jobid
 
     def info(self):
-        return "{}\t{}\t{}\t{}\t{}\t{}\t{}".format(
+        return "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}".format(
             str(self.jobid),
             str(self.priority()),
             str(self.status()),
             str(self.num_cores),
             str(self.start_time),
             str(self.end_time),
+            str(self.name),
             str(" ".join(self.cmd))
         )

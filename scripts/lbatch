@@ -28,7 +28,8 @@ def parse_cli():
     cliargs = {'-n': 1,
                '-u': "~/tmp/localqd",
                '-o': None,
-               '-h': None}
+               '-h': None,
+               '-J': None}
 
     while str(args[0]) in cliargs.keys():
         if args[0] == '-h':
@@ -65,7 +66,7 @@ def main():
 
     if requested_cores <= num_server_cores:
         jobid = localqd.add(num_cores=requested_cores, cmd=cmd, rundir=os.getcwd(),
-                            stderr=cliargs["-o"], stdout=cliargs["-o"])
+                            stderr=cliargs["-o"], stdout=cliargs["-o"], name=cliargs['-J'])
         print "Job added to the queue with id " + str(jobid)
         return 0
     else:
