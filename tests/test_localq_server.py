@@ -4,15 +4,19 @@ import pytest
 import localq
 
 def test_server():
+    #LocalQServer(num_cores, interval, priority_type)
     server = localq.LocalQServer(1, 60, "fifo")
 
-    job = localq.Job(["ls", "-la"], num_cores=1)
-    server.add(job, 1)
+    # add(cmd, num_cores)
+    server.add(["ls", "-la"], 1)
+    server.add(["ls", "-lah"], 2)
 
-    job2 = localq.Job(["ls", "-lah"], num_cores=1)
-    server.add(job2, 2)
+    assert len(server.jobs) == 1  # since job2 requests 2 cores, but only 1 is available
 
-    assert len(server.jobs) == 2
+    server.add(["ls", "-lah"], 1)
+
+    assert len(server.jobs) == 2  # since job2 requests 2 cores, but only 1 is available
+
     assert server.jobs[0].jobid == 1
     assert server.get_status(1) == localq.Job.PENDING
     server.stop_job_with_id(1)

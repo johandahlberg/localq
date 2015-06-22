@@ -4,7 +4,7 @@ import pytest
 import localq.Job
 
 def test_job():
-    job = localq.Job(["ls", "-la"], num_cores=1)
+    job = localq.Job(["ls", "-la"], num_cores=1, name="testjob")
     job.set_jobid(1)
     assert job.num_cores == 1
     assert job.cmd == ["ls", "-la"]
@@ -12,6 +12,7 @@ def test_job():
     assert job.status() == localq.Job.PENDING
     assert job.priority_method == "fifo"
     assert job.priority() == -1
+    assert job.name == "testjob"
     job.kill()
     assert job.status() == localq.Job.CANCELLED
 
