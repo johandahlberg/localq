@@ -6,7 +6,7 @@ import time
 import threading
 import localq
 from operator import methodcaller
-
+from localq.Status import Status
 
 class LocalQServer():
     def __init__(self, num_cores_available, interval, priority_method):
@@ -57,7 +57,7 @@ class LocalQServer():
         """
         Check in which state (list) a job is.
         :param jobid: a job id to search for
-        :return: Any of Job.PENDING, RUNNING, COMPLETED or FAILED.
+        :return: Any of Status.PENDING, RUNNING, COMPLETED or FAILED.
         If no job with the given ID is found, Job.NOT_FOUND is returned.
         """
         job = self.get_job_with_id(int(jobid))
@@ -97,14 +97,14 @@ class LocalQServer():
 
         def get_n_cores_booked():
             n_cores_booked = 0
-            running_jobs = [j for j in self.jobs if j.status() == localq.Job.RUNNING]
+            running_jobs = [j for j in self.jobs if j.status() == Status.RUNNING]
             for job in running_jobs:
                 n_cores_booked += job.num_cores
             return n_cores_booked
 
         def check_queue():
             while True:
-                pending_jobs = [j for j in self.jobs if j.status() == localq.Job.PENDING]
+                pending_jobs = [j for j in self.jobs if j.status() == Status.PENDING]
                 pending_jobs = sorted(pending_jobs, key=methodcaller('priority'), reverse=True)
 
                 # check if new jobs can be started
