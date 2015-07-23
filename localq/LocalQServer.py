@@ -77,12 +77,12 @@ class LocalQServer():
         """
         stop a job with a give ID
         :param jobid: Job ID of job to stop
-        :return: the jobs new ID after it was tried to be stopped
+        :return: the jobs new ID after it was tried to be stopped (None if it can not find the job)
         """
         job = self.get_job_with_id(int(jobid))
         if job:
             job.kill()
-            return 1
+            return jobid
         else:
             return None
 
