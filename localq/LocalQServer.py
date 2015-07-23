@@ -38,6 +38,15 @@ class LocalQServer():
         self._last_jobid += 1
         return self._last_jobid
 
+    def get_status_all(self):
+        """
+        Get the status of all know jobs.
+        :return: a dict with job-ids as keys, and their status as values.
+        """
+        jobs_and_status = map(lambda job: (job.jobid, job.status()), self.jobs)
+        print(jobs_and_status)
+        return dict(jobs_and_status)
+
     def list_queue(self):
         retstr = "JOBID\tPRIO\tSTATUS\tNUM_CORES\tSTART_TIME\tEND_TIME\tNAME\tCMD\n"
         for j in self.jobs:

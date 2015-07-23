@@ -2,15 +2,9 @@ __author__ = 'dankle'
 import subprocess
 import os
 import datetime
+from localq.Status import Status
 
 class Job:
-
-    COMPLETED = "COMPLETED"
-    FAILED = "FAILED"
-    PENDING = "PENDING"
-    RUNNING = "RUNNING"
-    CANCELLED = "CANCELLED"
-    NOT_FOUND = "NOT_FOUND"
 
     """ A command line job to run with a specified number of cores
     """
@@ -26,7 +20,7 @@ class Job:
         self._failed_to_start = False
         self.start_time = None
         self.end_time = None
-        self._status = Job.PENDING
+        self._status = Status.PENDING
         if name is not None:
             self.name = name
         else:
@@ -67,46 +61,46 @@ class Job:
                 self.proc.kill()
             except OSError:  # if job is finished or has been cancelled before, an OSError will be thrown
                 pass
-        self._status = Job.CANCELLED
+        self._status = Status.CANCELLED
 
     def update_status(self):
         """
         update the jobs status. Returns nothing.
         :return:
         """
-        if self._status == Job.CANCELLED:
+        if self._status == Status.CANCELLED:
             pass
         elif self.proc:
             # update the process' returncode
             self.proc.poll()
 
             if self.proc.returncode is None:  # Running
-                self._status = Job.RUNNING
+                self._status = Status.RUNNING
 
             else:  # None < 0 evaluates as True on some systems, so need to make sure its not None
                 if self.proc.returncode == 0:  # Completed successfully
                     if not self.end_time:
                         self.end_time = self._get_formatted_now()
-                    self._status = Job.COMPLETED
+                    self._status = Status.COMPLETED
 
                 elif self.proc.returncode > 0:  # Failed
                     if not self.end_time:
                         self.end_time = self._get_formatted_now()
-                    self._status = Job.FAILED
+                    self._status = Status.FAILED
 
                 elif self.proc.returncode < 0:  # Cancelled
                     if not self.end_time:
                         self.end_time = self._get_formatted_now()
                     # if job was cancelled, returncode will be -N if it received signal N (SIGKILL = 9)
-                    self._status = Job.CANCELLED
+                    self._status = Status.CANCELLED
         else:
             if self._failed_to_start: # Failed to start (self.proc will equal None if this happens)
                 if not self.end_time:
                     self.end_time = self._get_formatted_now()
-                self._status = Job.FAILED
+                self._status = Status.FAILED
 
             else:
-                self._status = Job.PENDING
+                self._status = Status.PENDING
 
     def status(self):
         """
