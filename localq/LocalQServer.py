@@ -58,13 +58,13 @@ class LocalQServer():
         Check in which state (list) a job is.
         :param jobid: a job id to search for
         :return: Any of Status.PENDING, RUNNING, COMPLETED or FAILED.
-        If no job with the given ID is found, Job.NOT_FOUND is returned.
+        If no job with the given ID is found, Status.NOT_FOUND is returned.
         """
         job = self.get_job_with_id(int(jobid))
         if job:
             return job.status()
         else:
-            return localq.Job.NOT_FOUND
+            return Status.NOT_FOUND
 
     def get_job_with_id(self, jobid):
         jobs = [job for job in self.jobs if job.jobid == jobid]
