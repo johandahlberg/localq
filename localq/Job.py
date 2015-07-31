@@ -40,6 +40,7 @@ class Job:
         try:
             self.start_time = now
             self.proc = subprocess.Popen(self.cmd,
+                                         shell=True,
                                          stdout=open(self.stdout, 'a'),
                                          stderr=open(self.stderr, 'a'),
                                          cwd=self.rundir)
