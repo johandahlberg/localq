@@ -2,6 +2,7 @@ __author__ = 'dankle'
 
 import unittest
 import localq
+import time
 from localq.Status import Status
 
 class TestLocalQServer(unittest.TestCase):
@@ -31,11 +32,22 @@ class TestLocalQServer(unittest.TestCase):
         #num_cores_available, interval, priority_method
 
     def test_get_status_for_all(self):
-        server = localq.LocalQServer(1, 60, "fifo")
+        server = localq.LocalQServer(1, 2, "fifo")
 
-        server.add(["sleep 3"], 1)
-        server.add(["sleep 3"], 1)
-        server.add(["sleep 3"], 1)
+        server.add("sleep 3", 1)
+        server.add("sleep 3", 1)
+        server.add("sleep 3", 1)
 
         jobs = server.get_status_all()
         self.assertEqual(jobs, {1 : Status.PENDING, 2 : Status.PENDING, 3 : Status.PENDING})
+
+    def test_shell_true(self):
+        server = localq.LocalQServer(num_cores_available=2, interval=1,
+                                     priority_method="fifo", use_shell=True)
+        server.run()
+            # localq.LocalQServer(1, 1, "fifo", use_shell=True)
+        server.add("ls -la > /dev/null", 1, rundir="/tmp")
+        assert server.get_status(1) == Status.PENDING
+        time.sleep(2)
+        assert server.get_status(1) == Status.COMPLETED
+

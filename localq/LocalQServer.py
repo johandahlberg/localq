@@ -9,15 +9,18 @@ from operator import methodcaller
 from localq.Status import Status
 
 class LocalQServer():
-    def __init__(self, num_cores_available, interval, priority_method):
+    def __init__(self, num_cores_available, interval, priority_method, use_shell=False):
         self.num_cores_available = int(num_cores_available)
         self.interval = float(interval)
         self.priority_method = priority_method
         self.jobs = []
         self._last_jobid = 0
+        self.use_shell = use_shell
 
     def add(self, cmd, num_cores, rundir=None, stdout=None, stderr=None, name=None):
-        job = localq.Job(cmd, num_cores, stdout=stdout, stderr=stderr, rundir=rundir, name=name)
+        job = localq.Job(cmd, num_cores, stdout=stdout, stderr=stderr,
+                         rundir=rundir, name=name, use_shell=self.use_shell)
+
         # if number of requested cores is bigger then the number of cores available to the system, fail submission.
         if job.num_cores > self.num_cores_available:
             return None
