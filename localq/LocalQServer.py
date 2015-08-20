@@ -7,26 +7,46 @@ import threading
 import localq
 from operator import methodcaller
 from localq.Status import Status
+import networkx as nx
 
 class LocalQServer():
     def __init__(self, num_cores_available, interval, priority_method, use_shell=False):
         self.num_cores_available = int(num_cores_available)
         self.interval = float(interval)
         self.priority_method = priority_method
-        self.jobs = []
         self._last_jobid = 0
         self.use_shell = use_shell
+        self.graph = nx.MultiDiGraph()
 
-    def add(self, cmd, num_cores, rundir=None, stdout=None, stderr=None, name=None):
+    def add(self, cmd, num_cores, rundir=".", stdout=None, stderr=None, name=None,
+            dependencies=[]):
+        """
+        Add a job to the queue. Dependencies need to be empty or all have status COMPLETED for
+        a job to run.
+        :param cmd: Command line string or list of command parts
+        :param num_cores: Number of cores needed for this job
+        :param rundir: Directory where to run the job
+        :param stdout: Filename to write stdout
+        :param stderr: Filename to write stderr
+        :param name: Job name
+        :param dependencies: List of job ids of dependencies.
+        :return: job ID if successfully submitted. None if number of requested cores
+        is bigger the server's total core count.
+        """
         job = localq.Job(cmd, num_cores, stdout=stdout, stderr=stderr,
-                         rundir=rundir, name=name, use_shell=self.use_shell)
+                         rundir=rundir, name=name, use_shell=self.use_shell,
+                         dependencies = dependencies)
 
         # if number of requested cores is bigger then the number of cores available to the system, fail submission.
         if job.num_cores > self.num_cores_available:
             return None
         else:
             job.set_jobid(self.get_new_jobid())
-            self.jobs.append(job)
+            # self.jobs.append(job)
+            self.graph.add_node(job)
+            for dependency_job_id in dependencies:
+                dependency_job = self.get_job_with_id(dependency_job_id)
+                self.graph.add_edge(dependency_job, job)
             return job.jobid
 
     def add_script(self, script, num_cores, rundir, stdout, stderr, name):
@@ -46,15 +66,21 @@ class LocalQServer():
         Get the status of all know jobs.
         :return: a dict with job-ids as keys, and their status as values.
         """
-        jobs_and_status = map(lambda job: (job.jobid, job.status()), self.jobs)
-        print(jobs_and_status)
+        jobs_and_status = map(lambda job: (job.jobid, job.status()), self.graph.nodes())
         return dict(jobs_and_status)
 
     def list_queue(self):
         retstr = "JOBID\tPRIO\tSTATUS\tNUM_CORES\tSTART_TIME\tEND_TIME\tNAME\tCMD\n"
-        for j in self.jobs:
+        for j in self.jobs():
             retstr += j.info() + "\n"
         return retstr.strip("\n")
+
+    def jobs(self):
+        """
+        get all jobs
+        :return: a list of all jobs added to this server
+        """
+        return self.graph.nodes()
 
     def get_status(self, jobid):
         """
@@ -70,7 +96,7 @@ class LocalQServer():
             return Status.NOT_FOUND
 
     def get_job_with_id(self, jobid):
-        jobs = [job for job in self.jobs if job.jobid == jobid]
+        jobs = [job for job in self.jobs() if job.jobid == jobid]
         if len(jobs) > 0:
             return jobs[0]
         else:
@@ -90,24 +116,24 @@ class LocalQServer():
             return None
 
     def stop_all_jobs(self):
-        for job in self.jobs:
+        for job in self.jobs():
             print "Sending SIGKILL to " + str(job.jobid)
             job.kill()
 
     def run(self):
-        print "Starting localqd with {} available cores".format(self.num_cores_available)
-        print "Checking queue every {} seconds".format(self.interval)
+        print "Starting localqd with {0} available cores".format(self.num_cores_available)
+        print "Checking queue every {0} seconds".format(self.interval)
 
         def get_n_cores_booked():
             n_cores_booked = 0
-            running_jobs = [j for j in self.jobs if j.status() == Status.RUNNING]
+            running_jobs = [j for j in self.jobs() if j.status() == Status.RUNNING]
             for job in running_jobs:
                 n_cores_booked += job.num_cores
             return n_cores_booked
 
         def check_queue():
             while True:
-                pending_jobs = [j for j in self.jobs if j.status() == Status.PENDING]
+                pending_jobs = self.get_runnable_jobs() # print( self.get_runnable_jobs() )
                 pending_jobs = sorted(pending_jobs, key=methodcaller('priority'), reverse=True)
 
                 # check if new jobs can be started
@@ -125,9 +151,81 @@ class LocalQServer():
         thread.setDaemon(True)
         thread.start()
 
+    def wait(self):
+        while True:
+            time.sleep(self.interval)
+            keep_alive = False
+            s = self.get_status_all()
+            for jobid in s:
+                # if any job has status running or pending,
+                # the pipeline needs to run
+                if s[jobid] in [Status.RUNNING, Status.PENDING]:
+                    keep_alive = True
+
+            if not keep_alive:
+                break
+
     def get_server_cores(self):
         """
         :return: Number of cores available to the server
         """
         return self.num_cores_available
 
+    def write_dot(self, f):
+        """ Write a dot file with the pipeline graph
+        :param f: file to write
+        :return: None
+        """
+        nx.write_dot(self.graph, f)
+
+    def get_ordered_jobs(self):
+        """ Method to order the tasks in the pipeline
+        :return: An array of paths for the runner to run
+        """
+        if not nx.is_directed_acyclic_graph(self.graph):
+            raise Exception("The submitted pipeline is not a DAG. Check the pipeline for loops.")
+
+        ordered_jobs = nx.topological_sort(self.graph)
+        return ordered_jobs
+
+    def get_runnable_jobs(self):
+        """
+        Get a list of pending jobs that are ready to be run based on dependencies
+        :return: List of Jobs
+        """
+        pending_jobs = [j for j in self.get_ordered_jobs() if j.status() == Status.PENDING]
+        ready_jobs = []
+        for job in pending_jobs:
+            # if there are no dependencies, the job is always ready
+            if not job.dependencies:
+                ready_jobs.append(job)
+            else:
+                # get a list containing the status of all dependencies
+                dependency_status = [self.get_status(depid) for depid in job.dependencies]
+                # if a uniqiefied list contains a single element, and that element is "COMPLETED"
+                # then the job is ready
+                if len(set(dependency_status)) == 1 and dependency_status[0] == Status.COMPLETED:
+                    ready_jobs.append(job)
+        return ready_jobs
+
+    def get_node_with_name(self, name_to_find):
+        """
+        Function to find a node in a graph by it's taskname
+        :param name_to_find: name of task to get
+        :return: the Job if it's found, None otherwise
+        """
+        for job in self.jobs():
+            if job.name == name_to_find:
+                return job
+        return None
+
+    def get_job_with_id(self, jobid_to_find):
+        """
+        Function to find a node in a graph by it's job id
+        :param jobid_to_find: name of task to get
+        :return: the Job if it's  found, None otherwise
+        """
+        for job in self.jobs():
+            if job.jobid == jobid_to_find:
+                return job
+        return None

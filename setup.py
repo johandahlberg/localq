@@ -18,9 +18,7 @@ setup(name='localq',
     author_email = 'daniel.klevebring@gmail.com',
     url = 'http://github.com/dakl/localq',
     license = 'MIT License',
-    install_requires=[
-        'Pyro4'
-    ],
+    install_requires=['Pyro4', 'networkx'],
     packages = [
         'localq'
     ],

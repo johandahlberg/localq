@@ -16,13 +16,13 @@ class TestLocalQServer(unittest.TestCase):
         server.add(["ls", "-la"], 1)
         server.add(["ls", "-lah"], 2)
 
-        assert len(server.jobs) == 1  # since job2 requests 2 cores, but only 1 is available
+        assert len(server.jobs()) == 1  # since job2 requests 2 cores, but only 1 is available
 
         server.add(["ls", "-lah"], 1)
 
-        assert len(server.jobs) == 2  # since job2 requests 2 cores, but only 1 is available
+        assert len(server.jobs()) == 2  # since job2 requests 2 cores, but only 1 is available
 
-        assert server.jobs[0].jobid == 1
+        assert server.jobs()[0].jobid == 1
         assert server.get_status(1) == Status.PENDING
         server.stop_job_with_id(1)
         assert server.get_status(1) == Status.CANCELLED

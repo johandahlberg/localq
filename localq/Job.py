@@ -9,7 +9,7 @@ class Job:
     """ A command line job to run with a specified number of cores
     """
     def __init__(self, cmd, num_cores=1, stdout=None, stderr=None, priority_method="fifo",
-                 rundir=None, name=None, use_shell=False):
+                 rundir=".", name=None, use_shell=False, dependencies=[]):
         self.cmd = cmd
         self.num_cores = int(num_cores)
         self.stdout = stdout
@@ -23,6 +23,7 @@ class Job:
         self.end_time = None
         self._status = Status.PENDING
         self.use_shell = use_shell
+        self.dependencies = dependencies
 
         if name is not None:
             self.name = name
@@ -37,9 +38,9 @@ class Job:
     def run(self):
         now = self._get_formatted_now()
         if not self.stdout:
-            self.stdout = self.rundir + "/localq-" + str(self.jobid) + "-" + now + ".out"
+            self.stdout = str(self.rundir) + "/localq-" + str(self.jobid) + "-" + now + ".out"
         if not self.stderr:
-            self.stderr = self.rundir + "/localq-" + str(self.jobid) + "-" + now + ".out"
+            self.stderr = str(self.rundir) + "/localq-" + str(self.jobid) + "-" + now + ".out"
         try:
             self.start_time = now
             self.proc = subprocess.Popen(self.cmd,
@@ -132,3 +133,9 @@ class Job:
             str(self.name),
             str(" ".join(self.cmd))
         )
+
+    def __hash__(self):
+        return hash(str(self))
+
+    def __str__(self):
+        return str(self.jobid) + "-" + str(self.name)
