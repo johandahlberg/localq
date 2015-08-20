@@ -1,6 +1,5 @@
 __author__ = 'dankle'
 import subprocess
-import os
 import datetime
 from localq.Status import Status
 
