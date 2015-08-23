@@ -8,8 +8,9 @@ class Job:
 
     """ A command line job to run with a specified number of cores
     """
-    def __init__(self, cmd, num_cores=1, stdout=None, stderr=None, priority_method="fifo",
+    def __init__(self, job_id, cmd, num_cores=1, stdout=None, stderr=None, priority_method="fifo",
                  rundir=".", name=None, use_shell=False, dependencies=[]):
+        self.jobid = job_id
         self.cmd = cmd
         self.num_cores = int(num_cores)
         self.stdout = stdout
@@ -17,7 +18,6 @@ class Job:
         self.priority_method = priority_method
         self.rundir = rundir
         self.proc = None
-        self.jobid = -1
         self._failed_to_start = False
         self.start_time = None
         self.end_time = None
@@ -25,14 +25,7 @@ class Job:
         self.use_shell = use_shell
         self.dependencies = dependencies
 
-        if name is not None:
-            self.name = name
-        else:
-            self.name = None
-
-    def set_jobid(self, jobid):
-        self.jobid = jobid
-        if self.name is None:
+        if name is None:
             self.name = "localq-" + str(self.jobid)
 
     def run(self):
@@ -123,19 +116,19 @@ class Job:
             return -1 * self.jobid
 
     def info(self):
-        return "{}\t{}\t{}\t{}\t{}\t{}\t{}\t{}".format(
-            str(self.jobid),
-            str(self.priority()),
-            str(self.status()),
-            str(self.num_cores),
-            str(self.start_time),
-            str(self.end_time),
-            str(self.name),
-            str(" ".join(self.cmd))
+        return "\t".join(
+            [str(self.jobid),
+             str(self.priority()),
+             str(self.status()),
+             str(self.num_cores),
+             str(self.start_time),
+             str(self.end_time),
+             str(self.name),
+             str(" ".join(self.cmd))]
         )
 
     def __hash__(self):
-        return hash(str(self))
+        return self.jobid
 
     def __str__(self):
         return str(self.jobid) + "-" + str(self.name)

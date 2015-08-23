@@ -33,16 +33,17 @@ class LocalQServer():
         :return: job ID if successfully submitted. None if number of requested cores
         is bigger the server's total core count.
         """
-        job = localq.Job(cmd, num_cores, stdout=stdout, stderr=stderr,
+
+        job_id = self.get_new_jobid()
+        job = localq.Job(job_id, cmd, num_cores, stdout=stdout, stderr=stderr,
                          rundir=rundir, name=name, use_shell=self.use_shell,
                          dependencies = dependencies)
+
 
         # if number of requested cores is bigger then the number of cores available to the system, fail submission.
         if job.num_cores > self.num_cores_available:
             return None
         else:
-            job.set_jobid(self.get_new_jobid())
-            # self.jobs.append(job)
             self.graph.add_node(job)
             for dependency_job_id in dependencies:
                 dependency_job = self.get_job_with_id(dependency_job_id)
