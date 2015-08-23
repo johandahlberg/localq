@@ -1,39 +1,22 @@
 __author__ = 'dankle'
 
 import unittest
+import subprocess
+
+from mock import MagicMock, patch
+from localq.Status import Status
+
 from localq.Job import Job
 
 class TestJob(unittest.TestCase):
 
-    # def test_job(self):
-    #     job = localq.Job(["ls", "-la"], num_cores=1, name="testjob")
-    #     job.set_jobid(1)
-    #     assert job.num_cores == 1
-    #     assert job.cmd == ["ls", "-la"]
-    #     assert job.jobid == 1
-    #     assert job.status() == Status.PENDING
-    #     assert job.priority_method == "fifo"
-    #     assert job.priority() == -1
-    #     assert job.name == "testjob"
-    #     job.kill()
-    #     assert job.status() == Status.CANCELLED
-    #
-    #     job_with_shell_true = localq.Job("ls -la > /dev/null", num_cores=1, name="testjob_with_shell_true", use_shell=True)
-    #     job_with_shell_true.set_jobid(1)
-    #     assert job_with_shell_true.num_cores == 1
-    #     assert job_with_shell_true.cmd == "ls -la > /dev/null"
-    #     assert job_with_shell_true.jobid == 1
-    #     assert job_with_shell_true.status() == Status.PENDING
-    #     assert job_with_shell_true.priority_method == "fifo"
-    #     assert job_with_shell_true.priority() == -1
-    #     assert job_with_shell_true.name == "testjob_with_shell_true"
-    #     job_with_shell_true.kill()
-    #     assert job_with_shell_true.status() == Status.CANCELLED
+    unique_job_id = 0
+    job = None
 
-
-    job_id = 1
-    cmd = ["ls", "-la"]
-    job = Job(job_id, cmd)
+    def setUp(self):
+        self.unique_job_id += 1
+        cmd = ["ls", "-la"]
+        self.job = Job(self.unique_job_id, cmd)
 
     def test__hash__(self):
         self.assertEqual(self.job_id, self.job.__hash__())
@@ -60,27 +43,71 @@ class TestJob(unittest.TestCase):
         self.assertEqual(expected, self.job.info())
 
     def test_kill(self):
-        # job = Job(cmd, num_cores, stdout, stderr, priority_method, rundir, name, use_shell, dependencies)
-        # self.assertEqual(expected, job.kill())
-        assert False # TODO: implement your test here
+        self.job.proc = MagicMock()
+        self.job.kill()
+        self.job.proc.kill.assert_called_with()
+        assert self.job._status == Status.CANCELLED
+
+        self.job.proc.kill = MagicMock(side_effect=OSError("foo"))
+        self.job.kill()
+        self.job.proc.kill.assert_called_with()
+        assert self.job._status == Status.CANCELLED
+
 
     def test_priority(self):
         self.assertEqual(-1 * self.job_id, self.job.priority())
 
     def test_run(self):
-        # job = Job(cmd, num_cores, stdout, stderr, priority_method, rundir, name, use_shell, dependencies)
-        # self.assertEqual(expected, job.run())
-        assert False # TODO: implement your test here
+        with patch.object(subprocess, "Popen", return_value="Fake process"):
+            # Should just run without trouble.
+            self.job.run()
+            assert self.job.proc == "Fake process"
+        # if an exception is thrown, make sure it's handled.
+        with patch.object(subprocess, "Popen", side_effect=OSError("foo")):
+            self.job.run()
+            assert self.job.proc == None
+            assert self.job._failed_to_start
 
     def test_status(self):
-        # job = Job(cmd, num_cores, stdout, stderr, priority_method, rundir, name, use_shell, dependencies)
-        # self.assertEqual(expected, job.status())
-        assert False # TODO: implement your test here
+        with patch.object(Job, "update_status", return_value=None) as mock_update_status:
+            actual_status = self.job.status()
+            mock_update_status.assert_called_with()
+            assert self.job._status == actual_status
 
     def test_update_status(self):
-        # job = Job(cmd, num_cores, stdout, stderr, priority_method, rundir, name, use_shell, dependencies)
-        # self.assertEqual(expected, job.update_status())
-        assert False # TODO: implement your test here
+        mock_proc = MagicMock(returncode=None)
+        self.job.proc = mock_proc
+
+        self.job._status = Status.CANCELLED
+        self.job.update_status()
+        assert self.job._status == Status.CANCELLED
+
+        self.job._status = Status.RUNNING
+        mock_proc = MagicMock(returncode=None)
+        self.job.proc = mock_proc
+        self.job.update_status()
+        assert self.job._status == Status.RUNNING
+
+        self.job._status = Status.RUNNING
+        mock_proc = MagicMock(returncode=-1)
+        self.job.proc = mock_proc
+        self.job.update_status()
+        assert self.job._status == Status.CANCELLED
+
+        self.job._status = Status.RUNNING
+        mock_proc = MagicMock(returncode=1)
+        self.job.proc = mock_proc
+        self.job.update_status()
+        assert self.job._status == Status.FAILED
+
+        self.job.proc = False
+        self.job.update_status()
+        assert self.job._status == Status.PENDING
+
+        self.job._failed_to_start = True
+        self.job.update_status()
+        assert self.job._status == Status.FAILED
+
 
     if __name__ == '__main__':
         unittest.main()
