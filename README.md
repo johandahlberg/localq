@@ -2,15 +2,11 @@
 
 `localq` is a job scheduler ment to be run on a single node. Jobs can be submitted to it, which are then run when resources are available. 
 
-# Prerequsites
-
-* Pyro4 python module (`pip install Pyro4`)
-
 # Installation
 
 ```bash
 git clone https://github.com/dakl/localq.git
-pip install ./localq
+pip install -r localtq/requirements.txt ./localq
 ```
 
 # Testing
