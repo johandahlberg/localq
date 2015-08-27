@@ -19,11 +19,11 @@ class TestJob(unittest.TestCase):
         self.job = Job(self.unique_job_id, cmd)
 
     def test__hash__(self):
-        self.assertEqual(self.job_id, self.job.__hash__())
+        self.assertEqual(self.unique_job_id, self.job.__hash__())
 
     def test___init__(self):
         # only check name is correctly set if no name specified.
-        assert self.job.name == "localq-" + str(self.job_id)
+        self.assertEqual(self.job.name, "localq-" + str(self.unique_job_id))
 
     def test___str__(self):
         expected = str(self.job.jobid) + "-" + str(self.job.name)
@@ -55,7 +55,7 @@ class TestJob(unittest.TestCase):
 
 
     def test_priority(self):
-        self.assertEqual(-1 * self.job_id, self.job.priority())
+        self.assertEqual(-1 * self.unique_job_id, self.job.priority())
 
     def test_run(self):
         with patch.object(subprocess, "Popen", return_value="Fake process"):

@@ -18,8 +18,7 @@ class LocalQServer():
         self.use_shell = use_shell
         self.graph = nx.MultiDiGraph()
 
-    def add(self, cmd, num_cores, rundir=".", stdout=None, stderr=None, name=None,
-            dependencies=[]):
+    def add(self, cmd, num_cores, rundir=".", stdout=None, stderr=None, name=None, dependencies=[]):
         """
         Add a job to the queue. Dependencies need to be empty or all have status COMPLETED for
         a job to run.
@@ -34,11 +33,10 @@ class LocalQServer():
         is bigger the server's total core count.
         """
 
-        job_id = self.get_new_jobid()
+        job_id = self._get_new_jobid()
         job = localq.Job(job_id, cmd, num_cores, stdout=stdout, stderr=stderr,
                          rundir=rundir, name=name, use_shell=self.use_shell,
-                         dependencies = dependencies)
-
+                         dependencies=dependencies)
 
         # if number of requested cores is bigger then the number of cores available to the system, fail submission.
         if job.num_cores > self.num_cores_available:
@@ -50,11 +48,11 @@ class LocalQServer():
                 self.graph.add_edge(dependency_job, job)
             return job.jobid
 
-    def add_script(self, script, num_cores, rundir, stdout, stderr, name):
+    def add_script(self, script, num_cores, rundir=".", stdout=None, stderr=None, name=None, dependencies=[]):
         cmd = ["sh", script]
         return self.add(cmd, num_cores, stdout=stdout, stderr=stderr, rundir=rundir, name=name)
 
-    def get_new_jobid(self):
+    def _get_new_jobid(self):
         """
         Method to get a new jobid to use for a job. Increments internal jobid tracker variable each time it's called.
         :return: a job id (int)
@@ -71,7 +69,7 @@ class LocalQServer():
         return dict(jobs_and_status)
 
     def list_queue(self):
-        retstr = "JOBID\tPRIO\tSTATUS\tNUM_CORES\tSTART_TIME\tEND_TIME\tNAME\tCMD\n"
+        retstr = "\t".join(["JOBID", "PRIO", "STATUS", "NUM_CORES", "START_TIME", "END_TIME", "NAME", "CMD", "\n"])
         for j in self.jobs():
             retstr += j.info() + "\n"
         return retstr.strip("\n")
@@ -134,7 +132,7 @@ class LocalQServer():
 
         def check_queue():
             while True:
-                pending_jobs = self.get_runnable_jobs() # print( self.get_runnable_jobs() )
+                pending_jobs = self.get_runnable_jobs()
                 pending_jobs = sorted(pending_jobs, key=methodcaller('priority'), reverse=True)
 
                 # check if new jobs can be started
