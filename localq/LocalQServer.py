@@ -115,7 +115,7 @@ class LocalQServer():
 
     def stop_all_jobs(self):
         for job in self.jobs():
-            print "Sending SIGKILL to " + str(job.jobid)
+            print "Sending SIGTERM to " + str(job.jobid)
             job.kill()
 
     def run(self):

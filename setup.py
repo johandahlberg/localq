@@ -28,9 +28,8 @@ setup(name='localq',
         'load-balancer'
     ],
     scripts = [
-        'scripts/localqd',
-	'scripts/localqserver_start',
-	'scripts/localqserver_wait',
+	    'scripts/localqserver_start',
+	    'scripts/localqserver_wait',
         'scripts/lbatch',
         'scripts/lqueue', 
         'scripts/lcancel',

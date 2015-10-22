@@ -51,11 +51,11 @@ class Job:
         return datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%dT%H%M%S')
 
     def kill(self):
-        """Send the jobs process SIGKILL
+        """Send the jobs process SIGTERM
         """
         if self.proc:
             try:
-                self.proc.kill()
+                self.proc.terminate() # sends the SIGTERM signal
             except OSError:  # if job is finished or has been cancelled before, an OSError will be thrown
                 pass
         self._status = Status.CANCELLED
