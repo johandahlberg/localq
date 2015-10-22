@@ -29,6 +29,8 @@ setup(name='localq',
     ],
     scripts = [
         'scripts/localqd',
+	'scripts/localqserver_start',
+	'scripts/localqserver_wait',
         'scripts/lbatch',
         'scripts/lqueue', 
         'scripts/lcancel',
