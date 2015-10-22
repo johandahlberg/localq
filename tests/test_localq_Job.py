@@ -45,12 +45,12 @@ class TestJob(unittest.TestCase):
     def test_kill(self):
         self.job.proc = MagicMock()
         self.job.kill()
-        self.job.proc.kill.assert_called_with()
+        self.job.proc.terminate.assert_called_with()
         assert self.job._status == Status.CANCELLED
 
         self.job.proc.kill = MagicMock(side_effect=OSError("foo"))
         self.job.kill()
-        self.job.proc.kill.assert_called_with()
+        self.job.proc.terminate.assert_called_with()
         assert self.job._status == Status.CANCELLED
 
 
