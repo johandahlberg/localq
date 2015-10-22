@@ -10,6 +10,7 @@ from localq.Status import Status
 import networkx as nx
 import os
 
+
 class LocalQServer():
     def __init__(self, num_cores_available, interval, priority_method, use_shell=False):
         self.num_cores_available = int(num_cores_available)
@@ -18,10 +19,10 @@ class LocalQServer():
         self._last_jobid = 0
         self.use_shell = use_shell
         self.graph = nx.MultiDiGraph()
-	self.pid = os.getpid()
+        self.pid = os.getpid()
 
     def get_pid(self):
-	return self.pid
+        return self.pid
 
     def add(self, cmd, num_cores, rundir=".", stdout=None, stderr=None, name=None, dependencies=[]):
         """
