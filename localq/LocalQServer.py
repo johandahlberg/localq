@@ -99,13 +99,6 @@ class LocalQServer():
         else:
             return Status.NOT_FOUND
 
-    def get_job_with_id(self, jobid):
-        jobs = [job for job in self.jobs() if job.jobid == jobid]
-        if len(jobs) > 0:
-            return jobs[0]
-        else:
-            return None
-
     def stop_job_with_id(self, jobid):
         """
         stop a job with a give ID
