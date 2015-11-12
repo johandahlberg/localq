@@ -41,7 +41,7 @@ def main():
         uri = str(pf.read().strip())
         pf.close()
     else:
-        print "Could not find file " + str(urifile) + ". Is the localq daemon running?"
+        print "Could not find file " + str(urifile) + ". Is the localq server running?"
         sys.exit(1)
 
     localqd = Pyro4.Proxy(uri)

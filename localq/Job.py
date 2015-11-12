@@ -26,6 +26,8 @@ class Job:
 
         if name is None:
             self.name = "localq-" + str(self.jobid)
+        else:
+            self.name = name
 
     def run(self):
         now = self._get_formatted_now()
