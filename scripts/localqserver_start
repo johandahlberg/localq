@@ -24,16 +24,16 @@ def main(opts):
 
     # Check for a urifile to see if the daemon already runs
     try:
-	pf = file(urifile, 'r')
-	uri_on_disk = str(pf.read().strip())
-	pf.close()
+        pf = file(urifile, 'r')
+        uri_on_disk = str(pf.read().strip())
+        pf.close()
     except IOError:
-	uri_on_disk = None
+        uri_on_disk = None
 
     if uri_on_disk:
-	message = "urifile %s already exist. LocalQServer already running?\n"
-	sys.stderr.write(message % urifile)
-	sys.exit(1)
+        message = "urifile %s already exist. LocalQServer already running?\n"
+        sys.stderr.write(message % urifile)
+        sys.exit(1)
 
     file(urifile,'w+').write("%s\n" % uri)
     os.chmod(urifile, stat.S_IRUSR)
@@ -49,8 +49,8 @@ def main(opts):
 def exit_gracefully(opts):
     uf = os.path.expanduser(opts.u)
     if os.path.exists(uf):
-	logging.debug("Deleting urifile {}".format(uf))
-	os.remove(uf)
+        logging.debug("Deleting urifile {}".format(uf))
+        os.remove(uf)
     sys.exit(0)
 
 def parse_cli():
@@ -61,11 +61,11 @@ def parse_cli():
     ap = argparse.ArgumentParser()
     ap.add_argument('-n', help="Number of available cores", action="store", required=False, default=1, type=int)
     ap.add_argument('-i', help="Time interval (in seconds) to check queue and start jobs", action="store", required=False,
-		    default=30, type=float)
+                    default=30, type=float)
     ap.add_argument('-u', help="URI file path", action="store", required=False, default="~/tmp/localqd", type=str)
     ap.add_argument('-p', help="Priority method", choices=["fifo"], default="fifo", type=str)
     ap.add_argument("--loglevel", help="level of logging", default='INFO', type=str,
-		    choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
+                    choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
 
     return ap.parse_args()
 
@@ -76,16 +76,16 @@ def setup_logging(loglevel="INFO"):
     """
     numeric_level = getattr(logging, loglevel.upper(), None)
     if not isinstance(numeric_level, int):
-	raise ValueError('Invalid log level: %s' % loglevel)
+        raise ValueError('Invalid log level: %s' % loglevel)
     logging.basicConfig(level=numeric_level,
-			format='%(levelname)s %(asctime)s %(funcName)s - %(message)s')
+                        format='%(levelname)s %(asctime)s %(funcName)s - %(message)s')
     logging.info("Started log with loglevel %(loglevel)s" % {"loglevel":loglevel})
 
 if __name__ == '__main__':
     opts = parse_cli()
     try:
-	main(opts)
+        main(opts)
     except KeyboardInterrupt:
-	pass
+        pass
     finally:
-	exit_gracefully(opts)
+        exit_gracefully(opts)
