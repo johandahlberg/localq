@@ -63,7 +63,7 @@ def parse_cli():
     ap.add_argument('-i', help="Time interval (in seconds) to check queue and start jobs", action="store", required=False,
                     default=30, type=float)
     ap.add_argument('-u', help="URI file path", action="store", required=False, default="~/tmp/localqd", type=str)
-    ap.add_argument('-p', help="Priority method", choices=["fifo"], default="fifo", type=str)
+    ap.add_argument('-p', help="Priority method", choices=["fifo", 'max_cores_first'], default="fifo", type=str)
     ap.add_argument("--loglevel", help="level of logging", default='INFO', type=str,
                     choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
 
