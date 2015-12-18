@@ -7,14 +7,13 @@ class Job:
 
     """ A command line job to run with a specified number of cores
     """
-    def __init__(self, job_id, cmd, num_cores=1, stdout=None, stderr=None, priority_method="fifo",
+    def __init__(self, job_id, cmd, num_cores=1, stdout=None, stderr=None,
                  rundir=".", name=None, use_shell=False, dependencies=[]):
         self.jobid = job_id
         self.cmd = cmd
         self.num_cores = int(num_cores)
         self.stdout = stdout
         self.stderr = stderr
-        self.priority_method = priority_method
         self.rundir = rundir
         self.proc = None
         self._failed_to_start = False
@@ -109,17 +108,9 @@ class Job:
         self.update_status()
         return self._status
 
-    def priority(self):
-        if self.priority_method == "fifo":
-            return -1 * self.jobid
-        else:
-            ## default to fifo
-            return -1 * self.jobid
-
     def info(self):
         return "\t".join(
             [str(self.jobid),
-             str(self.priority()),
              str(self.status()),
              str(self.num_cores),
              str(self.start_time),

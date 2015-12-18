@@ -9,10 +9,12 @@ from operator import methodcaller
 from localq.Status import Status
 import networkx as nx
 import os
+from importlib import import_module
 
+prioritizers = import_module("localq.JobPrioritizer")
 
 class LocalQServer():
-    def __init__(self, num_cores_available, interval, priority_method, use_shell=False):
+    def __init__(self, num_cores_available, interval, priority_method="fifo", use_shell=False):
         self.num_cores_available = int(num_cores_available)
         self.interval = float(interval)
         self.priority_method = priority_method
@@ -118,6 +120,10 @@ class LocalQServer():
             print "Sending SIGTERM to " + str(job.jobid)
             job.kill()
 
+    def _prioritize(self, pending_jobs):
+        use_this_prioritzer = getattr(prioritizers, self.priority_method)
+        return use_this_prioritzer.__func__(pending_jobs)
+
     def run(self):
         print "Starting localqd with {0} available cores".format(self.num_cores_available)
         print "Checking queue every {0} seconds".format(self.interval)
@@ -132,10 +138,10 @@ class LocalQServer():
         def check_queue():
             while True:
                 pending_jobs = self.get_runnable_jobs()
-                pending_jobs = sorted(pending_jobs, key=methodcaller('priority'), reverse=True)
+                prioritized_jobs = self._prioritize(pending_jobs)
 
                 # check if new jobs can be started
-                for job in pending_jobs:
+                for job in prioritized_jobs:
                     n_cores_busy = get_n_cores_booked()
                     cores_idle = self.num_cores_available - n_cores_busy
                     if cores_idle >= job.num_cores:
