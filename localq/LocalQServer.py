@@ -122,18 +122,25 @@ class LocalQServer():
 
     def _prioritize(self, pending_jobs):
         use_this_prioritzer = getattr(prioritizers, self.priority_method)
-        return use_this_prioritzer.__func__(pending_jobs)
+        return use_this_prioritzer.__func__(
+            pending_jobs,
+            cores_available=self.num_cores_available,
+            cores_idle=self.cores_idle())
+
+    def cores_idle(self):
+        n_cores_busy = self.get_n_cores_booked()
+        return self.num_cores_available - n_cores_busy
+
+    def get_n_cores_booked(self):
+        n_cores_booked = 0
+        running_jobs = [j for j in self.jobs() if j.status() == Status.RUNNING]
+        for job in running_jobs:
+            n_cores_booked += job.num_cores
+        return n_cores_booked
 
     def run(self):
         print "Starting localqd with {0} available cores".format(self.num_cores_available)
         print "Checking queue every {0} seconds".format(self.interval)
-
-        def get_n_cores_booked():
-            n_cores_booked = 0
-            running_jobs = [j for j in self.jobs() if j.status() == Status.RUNNING]
-            for job in running_jobs:
-                n_cores_booked += job.num_cores
-            return n_cores_booked
 
         def check_queue():
             while True:
@@ -142,9 +149,7 @@ class LocalQServer():
 
                 # check if new jobs can be started
                 for job in prioritized_jobs:
-                    n_cores_busy = get_n_cores_booked()
-                    cores_idle = self.num_cores_available - n_cores_busy
-                    if cores_idle >= job.num_cores:
+                    if self.cores_idle() >= job.num_cores:
                         job.run()
                     else:  # If highest-priority job can't start, don't try to start next job until next cycle
                         continue
