@@ -2,6 +2,8 @@ __author__ = 'dankle'
 
 import unittest
 import subprocess
+import tempfile
+import os
 
 from mock import MagicMock, patch
 from localq.Status import Status
@@ -16,7 +18,9 @@ class TestJob(unittest.TestCase):
     def setUp(self):
         self.unique_job_id += 1
         cmd = ["ls", "-la"]
-        self.job = Job(self.unique_job_id, cmd)
+        tmp_stdout_file = tempfile.NamedTemporaryFile().name
+        tmp_stderr_file = tempfile.NamedTemporaryFile().name
+        self.job = Job(self.unique_job_id, cmd, stdout=tmp_stdout_file, stderr=tmp_stderr_file)
 
     def test__hash__(self):
         self.assertEqual(self.unique_job_id, self.job.__hash__())
@@ -32,7 +36,6 @@ class TestJob(unittest.TestCase):
     def test_info(self):
         expected = "\t".join(
             [str(self.job.jobid),
-             str(self.job.priority()),
              str(self.job.status()),
              str(self.job.num_cores),
              str(self.job.start_time),
@@ -52,10 +55,6 @@ class TestJob(unittest.TestCase):
         self.job.kill()
         self.job.proc.terminate.assert_called_with()
         assert self.job._status == Status.CANCELLED
-
-
-    def test_priority(self):
-        self.assertEqual(-1 * self.unique_job_id, self.job.priority())
 
     def test_run(self):
         with patch.object(subprocess, "Popen", return_value="Fake process"):
