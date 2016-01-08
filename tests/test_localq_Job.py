@@ -46,13 +46,14 @@ class TestJob(unittest.TestCase):
         self.assertEqual(expected, self.job.info())
 
     def test_kill(self):
-        self.job.proc = MagicMock()
-        self.job.kill()
-        assert self.job._status == Status.CANCELLED
-
-        self.job.proc.kill = MagicMock(side_effect=OSError("foo"))
-        self.job.kill()
-        assert self.job._status == Status.CANCELLED
+        with patch.object(os, "killpg", return_value=True):
+            self.job.proc = MagicMock()
+            self.job.kill()
+            assert self.job._status == Status.CANCELLED
+        # If the os throws an errro when trying to kill the process
+        with patch.object(os, "killpg", side_effect=OSError("foo")):
+            self.job.kill()
+            assert self.job._status == Status.CANCELLED
 
     def test_run(self):
         with patch.object(subprocess, "Popen", return_value="Fake process"):
