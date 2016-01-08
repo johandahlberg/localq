@@ -18,12 +18,12 @@ def main():
     urifile = os.path.expanduser(opts.u)
 
     if os.path.exists(urifile):
-	pf = file(urifile, 'r')
-	uri = str(pf.read().strip())
-	pf.close()
+        pf = file(urifile, 'r')
+        uri = str(pf.read().strip())
+        pf.close()
     else:
-	print "Could not find file " + str(urifile) + ". Is the localq server running?"
-	sys.exit(1)
+        print "Could not find file " + str(urifile) + ". Is the localq server running?"
+        sys.exit(1)
 
     logging.debug("Gettign server")
     lqserver = Pyro4.Proxy(uri)
@@ -31,8 +31,8 @@ def main():
     lqserver.wait()
     uf = os.path.expanduser(opts.u)
     if os.path.exists(uf):
-	logging.debug("Deleting urifile {}".format(uf))
-	os.remove(uf)
+        logging.debug("Deleting urifile {}".format(uf))
+        os.remove(uf)
 
     os.kill(lqserver.get_pid(), SIGTERM)
 
@@ -45,7 +45,7 @@ def parse_cli():
     ap = argparse.ArgumentParser()
     ap.add_argument('-u', help="URI file path", action="store", required=False, default="~/tmp/localqd", type=str)
     ap.add_argument("--loglevel", help="level of logging", default='INFO', type=str,
-		    choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
+                    choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
 
     return ap.parse_args()
 
@@ -56,9 +56,9 @@ def setup_logging(loglevel="INFO"):
     """
     numeric_level = getattr(logging, loglevel.upper(), None)
     if not isinstance(numeric_level, int):
-	raise ValueError('Invalid log level: %s' % loglevel)
+        raise ValueError('Invalid log level: %s' % loglevel)
     logging.basicConfig(level=numeric_level,
-			format='%(levelname)s %(asctime)s %(funcName)s - %(message)s')
+                        format='%(levelname)s %(asctime)s %(funcName)s - %(message)s')
     logging.info("Started log with loglevel %(loglevel)s" % {"loglevel":loglevel})
 
 

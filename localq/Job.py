@@ -1,20 +1,23 @@
-__author__ = 'dankle'
+import os
+import signal
 import subprocess
 import datetime
 from localq.Status import Status
+
+__author__ = 'dankle'
+
 
 class Job:
 
     """ A command line job to run with a specified number of cores
     """
-    def __init__(self, job_id, cmd, num_cores=1, stdout=None, stderr=None, priority_method="fifo",
+    def __init__(self, job_id, cmd, num_cores=1, stdout=None, stderr=None,
                  rundir=".", name=None, use_shell=False, dependencies=[]):
         self.jobid = job_id
         self.cmd = cmd
         self.num_cores = int(num_cores)
         self.stdout = stdout
         self.stderr = stderr
-        self.priority_method = priority_method
         self.rundir = rundir
         self.proc = None
         self._failed_to_start = False
@@ -41,7 +44,9 @@ class Job:
                                          shell=self.use_shell,
                                          stdout=open(self.stdout, 'a'),
                                          stderr=open(self.stderr, 'a'),
-                                         cwd=self.rundir)
+                                         cwd=self.rundir,
+                                         preexec_fn=os.setsid
+                                         )
         except OSError:
             # An OSError is thrown if the executable file in 'cmd' is not found. This needs to be captured
             # "manually" and handled in self.status()
@@ -57,7 +62,7 @@ class Job:
         """
         if self.proc:
             try:
-                self.proc.terminate() # sends the SIGTERM signal
+                os.killpg(os.getpgid(self.proc.pid), signal.SIGTERM)
             except OSError:  # if job is finished or has been cancelled before, an OSError will be thrown
                 pass
         self._status = Status.CANCELLED
@@ -109,17 +114,9 @@ class Job:
         self.update_status()
         return self._status
 
-    def priority(self):
-        if self.priority_method == "fifo":
-            return -1 * self.jobid
-        else:
-            ## default to fifo
-            return -1 * self.jobid
-
     def info(self):
         return "\t".join(
             [str(self.jobid),
-             str(self.priority()),
              str(self.status()),
              str(self.num_cores),
              str(self.start_time),
