@@ -1,7 +1,11 @@
-__author__ = 'dankle'
+import os
+import signal
 import subprocess
 import datetime
 from localq.Status import Status
+
+__author__ = 'dankle'
+
 
 class Job:
 
@@ -40,7 +44,9 @@ class Job:
                                          shell=self.use_shell,
                                          stdout=open(self.stdout, 'a'),
                                          stderr=open(self.stderr, 'a'),
-                                         cwd=self.rundir)
+                                         cwd=self.rundir,
+                                         preexec_fn=os.setsid
+                                         )
         except OSError:
             # An OSError is thrown if the executable file in 'cmd' is not found. This needs to be captured
             # "manually" and handled in self.status()
@@ -56,7 +62,7 @@ class Job:
         """
         if self.proc:
             try:
-                self.proc.terminate() # sends the SIGTERM signal
+                os.killpg(os.getpgid(self.proc.pid), signal.SIGTERM)
             except OSError:  # if job is finished or has been cancelled before, an OSError will be thrown
                 pass
         self._status = Status.CANCELLED
