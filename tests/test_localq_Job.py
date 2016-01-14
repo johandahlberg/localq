@@ -68,7 +68,7 @@ class TestJob(unittest.TestCase):
         # if an exception is thrown, make sure it's handled.
         with patch.object(subprocess, "Popen", side_effect=OSError("foo")):
             self.job.run()
-            assert self.job.proc == None
+            assert not self.job.proc
             assert self.job._failed_to_start
 
     def test_status(self):
