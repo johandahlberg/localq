@@ -5,14 +5,10 @@ LocalQServer
 import time
 import threading
 import localq
-from operator import methodcaller
 from localq.Status import Status
 import networkx as nx
 import os
 from JobPrioritizer import JobPrioritizer as prioritizer
-from importlib import import_module
-
-#prioritizer = import_module("localq.JobPrioritizer")
 
 class LocalQServer():
     def __init__(self, num_cores_available, interval, priority_method="fifo", use_shell=False):
