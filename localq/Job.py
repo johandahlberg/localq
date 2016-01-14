@@ -12,7 +12,7 @@ class Job:
     """ A command line job to run with a specified number of cores
     """
     def __init__(self, job_id, cmd, num_cores=1, stdout=None, stderr=None,
-                 rundir=".", name=None, use_shell=False, dependencies=[]):
+                 rundir=".", name=None, use_shell=False, dependencies=None):
         self.jobid = job_id
         self.cmd = cmd
         self.num_cores = int(num_cores)
@@ -25,7 +25,10 @@ class Job:
         self.end_time = None
         self._status = Status.PENDING
         self.use_shell = use_shell
-        self.dependencies = dependencies
+        if dependencies is None:
+            self.dependencies = []
+        else:
+            self.dependencies = dependencies
 
         if name is None:
             self.name = "localq-" + str(self.jobid)

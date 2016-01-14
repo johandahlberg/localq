@@ -27,7 +27,7 @@ class LocalQServer():
     def get_pid(self):
         return self.pid
 
-    def add(self, cmd, num_cores, rundir=".", stdout=None, stderr=None, name=None, dependencies=[]):
+    def add(self, cmd, num_cores, rundir=".", stdout=None, stderr=None, name=None, dependencies=None):
         """
         Add a job to the queue. Dependencies need to be empty or all have status COMPLETED for
         a job to run.
@@ -52,14 +52,15 @@ class LocalQServer():
             return None
         else:
             self.graph.add_node(job)
-            for dependency_job_id in dependencies:
+            # If we have no dependencies get an empty list.
+            for dependency_job_id in dependencies or []:
                 dependency_job = self.get_job_with_id(dependency_job_id)
                 self.graph.add_edge(dependency_job, job)
             return job.jobid
 
-    def add_script(self, script, num_cores, rundir=".", stdout=None, stderr=None, name=None, dependencies=[]):
+    def add_script(self, script, num_cores, rundir=".", stdout=None, stderr=None, name=None, dependencies=None):
         cmd = ["sh", script]
-        return self.add(cmd, num_cores, stdout=stdout, stderr=stderr, rundir=rundir, name=name)
+        return self.add(cmd, num_cores, stdout=stdout, stderr=stderr, rundir=rundir, name=name, dependencies=dependencies)
 
     def _get_new_jobid(self):
         """
