@@ -10,6 +10,7 @@ from localq.Status import Status
 
 from localq.Job import Job
 
+
 class TestJob(unittest.TestCase):
 
     unique_job_id = 0
@@ -110,7 +111,6 @@ class TestJob(unittest.TestCase):
         self.job._failed_to_start = True
         self.job.update_status()
         assert self.job._status == Status.FAILED
-
 
     if __name__ == '__main__':
         unittest.main()

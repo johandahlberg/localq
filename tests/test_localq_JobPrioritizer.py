@@ -7,6 +7,7 @@ from random import shuffle
 from localq.Job import Job
 from localq.JobPrioritizer import JobPrioritizer as Prioritizer
 
+
 class TestJobPrioritizer(unittest.TestCase):
 
     job1 = Job(1, "echo", num_cores=1)
