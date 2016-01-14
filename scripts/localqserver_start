@@ -5,7 +5,7 @@ start a localq server
 
 import logging
 import Pyro4
-import localq
+from localq.LocalQServer import LocalQServer
 import argparse
 import sys
 import os
@@ -19,7 +19,7 @@ def main(opts):
     urifile = os.path.expanduser(opts.u)
 
     pyrodaemon = Pyro4.core.Daemon()
-    localqserver = localq.LocalQServer(opts.n, opts.i, opts.p)
+    localqserver = LocalQServer(opts.n, opts.i, opts.p)
     uri = pyrodaemon.register(localqserver)
 
     # Check for a urifile to see if the daemon already runs

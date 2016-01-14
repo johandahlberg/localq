@@ -4,11 +4,11 @@ LocalQServer
 
 import time
 import threading
-import localq
 from localq.Status import Status
 import networkx as nx
 import os
-from JobPrioritizer import JobPrioritizer as Prioritizer
+from localq.JobPrioritizer import JobPrioritizer as Prioritizer
+from localq.Job import Job
 
 class LocalQServer():
     def __init__(self, num_cores_available, interval, priority_method="fifo", use_shell=False):
@@ -39,7 +39,7 @@ class LocalQServer():
         """
 
         job_id = self._get_new_jobid()
-        job = localq.Job(job_id, cmd, num_cores, stdout=stdout, stderr=stderr,
+        job = Job(job_id, cmd, num_cores, stdout=stdout, stderr=stderr,
                          rundir=rundir, name=name, use_shell=self.use_shell,
                          dependencies=dependencies)
 
