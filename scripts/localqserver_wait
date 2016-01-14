@@ -12,6 +12,7 @@ from signal import SIGTERM
 
 __author__ = 'dankle'
 
+
 def main():
     opts = parse_cli()
     setup_logging(opts.loglevel)
@@ -49,6 +50,7 @@ def parse_cli():
 
     return ap.parse_args()
 
+
 def setup_logging(loglevel="INFO"):
     """
     Set up logging
@@ -59,7 +61,7 @@ def setup_logging(loglevel="INFO"):
         raise ValueError('Invalid log level: %s' % loglevel)
     logging.basicConfig(level=numeric_level,
                         format='%(levelname)s %(asctime)s %(funcName)s - %(message)s')
-    logging.info("Started log with loglevel %(loglevel)s" % {"loglevel":loglevel})
+    logging.info("Started log with loglevel %(loglevel)s" % {"loglevel": loglevel})
 
 
 if __name__ == "__main__":

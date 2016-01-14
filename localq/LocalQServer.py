@@ -10,6 +10,7 @@ import os
 from localq.JobPrioritizer import JobPrioritizer as Prioritizer
 from localq.Job import Job
 
+
 class LocalQServer():
     def __init__(self, num_cores_available, interval, priority_method="fifo", use_shell=False):
         self.num_cores_available = int(num_cores_available)
@@ -40,8 +41,8 @@ class LocalQServer():
 
         job_id = self._get_new_jobid()
         job = Job(job_id, cmd, num_cores, stdout=stdout, stderr=stderr,
-                         rundir=rundir, name=name, use_shell=self.use_shell,
-                         dependencies=dependencies)
+                  rundir=rundir, name=name, use_shell=self.use_shell,
+                  dependencies=dependencies)
 
         # if number of requested cores is bigger then the number of cores available to the system, fail submission.
         if job.num_cores > self.num_cores_available:
@@ -56,7 +57,8 @@ class LocalQServer():
 
     def add_script(self, script, num_cores, rundir=".", stdout=None, stderr=None, name=None, dependencies=None):
         cmd = ["sh", script]
-        return self.add(cmd, num_cores, stdout=stdout, stderr=stderr, rundir=rundir, name=name, dependencies=dependencies)
+        return self.add(cmd, num_cores, stdout=stdout, stderr=stderr, rundir=rundir, name=name,
+                        dependencies=dependencies)
 
     def _get_new_jobid(self):
         """
