@@ -10,6 +10,7 @@ from localq.Status import Status
 
 from localq.Job import Job
 
+
 class TestJob(unittest.TestCase):
 
     unique_job_id = 0
@@ -68,7 +69,7 @@ class TestJob(unittest.TestCase):
         # if an exception is thrown, make sure it's handled.
         with patch.object(subprocess, "Popen", side_effect=OSError("foo")):
             self.job.run()
-            assert self.job.proc == None
+            assert not self.job.proc
             assert self.job._failed_to_start
 
     def test_status(self):
@@ -110,7 +111,6 @@ class TestJob(unittest.TestCase):
         self.job._failed_to_start = True
         self.job.update_status()
         assert self.job._status == Status.FAILED
-
 
     if __name__ == '__main__':
         unittest.main()

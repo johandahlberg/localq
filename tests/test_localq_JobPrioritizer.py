@@ -5,7 +5,8 @@ import unittest
 from random import shuffle
 
 from localq.Job import Job
-from localq.JobPrioritizer import JobPrioritizer as prioritizer
+from localq.JobPrioritizer import JobPrioritizer as Prioritizer
+
 
 class TestJobPrioritizer(unittest.TestCase):
 
@@ -20,11 +21,11 @@ class TestJobPrioritizer(unittest.TestCase):
     shuffle(job_list)
 
     def test_fifo(self):
-        sorted_list = prioritizer.fifo(self.job_list)
+        sorted_list = Prioritizer.fifo(self.job_list)
         assert sorted_list[0] == self.job1
 
     def test_max_cores_first(self):
-        sorted_list = prioritizer.max_cores_first(self.job_list)
+        sorted_list = Prioritizer.max_cores_first(self.job_list)
         print sorted_list[0]
         assert sorted_list[0] == self.job3
 

@@ -8,11 +8,11 @@ __author__ = 'dankle'
 
 
 class Job:
-
     """ A command line job to run with a specified number of cores
     """
+
     def __init__(self, job_id, cmd, num_cores=1, stdout=None, stderr=None,
-                 rundir=".", name=None, use_shell=False, dependencies=[]):
+                 rundir=".", name=None, use_shell=False, dependencies=None):
         self.jobid = job_id
         self.cmd = cmd
         self.num_cores = int(num_cores)
@@ -25,7 +25,10 @@ class Job:
         self.end_time = None
         self._status = Status.PENDING
         self.use_shell = use_shell
-        self.dependencies = dependencies
+        if dependencies is None:
+            self.dependencies = []
+        else:
+            self.dependencies = dependencies
 
         if name is None:
             self.name = "localq-" + str(self.jobid)
@@ -54,8 +57,9 @@ class Job:
             self.proc = None
             self._failed_to_start = True
 
-    def _get_formatted_now(self):
-        return datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%dT%H%M%S')
+    @staticmethod
+    def _get_formatted_now():
+        return datetime.datetime.now().strftime('%Y%m%dT%H%M%S')
 
     def kill(self):
         """Send the jobs process SIGTERM
@@ -98,7 +102,7 @@ class Job:
                     # if job was cancelled, returncode will be -N if it received signal N (SIGKILL = 9)
                     self._status = Status.CANCELLED
         else:
-            if self._failed_to_start: # Failed to start (self.proc will equal None if this happens)
+            if self._failed_to_start:  # Failed to start (self.proc will equal None if this happens)
                 if not self.end_time:
                     self.end_time = self._get_formatted_now()
                 self._status = Status.FAILED

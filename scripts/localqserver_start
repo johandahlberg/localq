@@ -5,7 +5,7 @@ start a localq server
 
 import logging
 import Pyro4
-import localq
+from localq.LocalQServer import LocalQServer
 import argparse
 import sys
 import os
@@ -13,13 +13,14 @@ import stat
 
 __author__ = 'dankle'
 
+
 def main(opts):
     setup_logging(opts.loglevel)
 
     urifile = os.path.expanduser(opts.u)
 
     pyrodaemon = Pyro4.core.Daemon()
-    localqserver = localq.LocalQServer(opts.n, opts.i, opts.p)
+    localqserver = LocalQServer(opts.n, opts.i, opts.p)
     uri = pyrodaemon.register(localqserver)
 
     # Check for a urifile to see if the daemon already runs
@@ -35,7 +36,7 @@ def main(opts):
         sys.stderr.write(message % urifile)
         sys.exit(1)
 
-    file(urifile,'w+').write("%s\n" % uri)
+    file(urifile, 'w+').write("%s\n" % uri)
     os.chmod(urifile, stat.S_IRUSR)
 
     print uri
@@ -46,12 +47,14 @@ def main(opts):
     logging.debug("Starting request loop...")
     pyrodaemon.requestLoop()
 
+
 def exit_gracefully(opts):
     uf = os.path.expanduser(opts.u)
     if os.path.exists(uf):
         logging.debug("Deleting urifile {}".format(uf))
         os.remove(uf)
     sys.exit(0)
+
 
 def parse_cli():
     """
@@ -60,14 +63,15 @@ def parse_cli():
     """
     ap = argparse.ArgumentParser()
     ap.add_argument('-n', help="Number of available cores", action="store", required=False, default=1, type=int)
-    ap.add_argument('-i', help="Time interval (in seconds) to check queue and start jobs", action="store", required=False,
-                    default=30, type=float)
+    ap.add_argument('-i', help="Time interval (in seconds) to check queue and start jobs", action="store",
+                    required=False, default=30, type=float)
     ap.add_argument('-u', help="URI file path", action="store", required=False, default="~/tmp/localqd", type=str)
     ap.add_argument('-p', help="Priority method", choices=["fifo", 'max_cores_first'], default="fifo", type=str)
     ap.add_argument("--loglevel", help="level of logging", default='INFO', type=str,
                     choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
 
     return ap.parse_args()
+
 
 def setup_logging(loglevel="INFO"):
     """
@@ -79,7 +83,8 @@ def setup_logging(loglevel="INFO"):
         raise ValueError('Invalid log level: %s' % loglevel)
     logging.basicConfig(level=numeric_level,
                         format='%(levelname)s %(asctime)s %(funcName)s - %(message)s')
-    logging.info("Started log with loglevel %(loglevel)s" % {"loglevel":loglevel})
+    logging.info("Started log with loglevel %(loglevel)s" % {"loglevel": loglevel})
+
 
 if __name__ == '__main__':
     opts = parse_cli()

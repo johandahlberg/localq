@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 
-import localq
 import argparse
-import sys, os
+import sys
+import os
 import Pyro4
 
 __author__ = 'dankle'
@@ -34,4 +34,3 @@ def main():
 
 if __name__ == "__main__":
     sys.exit(main())
-

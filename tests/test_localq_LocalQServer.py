@@ -8,7 +8,6 @@ import time
 
 
 class TestLocalQServer(unittest.TestCase):
-
     server = None
     cmd = ["ls", "-la"]
 
@@ -22,7 +21,7 @@ class TestLocalQServer(unittest.TestCase):
     def add_some_jobs_with_dependencies(self):
         for i in range(1, 5):
             if i > 1:
-                self.server.add(cmd=self.cmd, num_cores=1, dependencies=[i-1])
+                self.server.add(cmd=self.cmd, num_cores=1, dependencies=[i - 1])
             else:
                 self.server.add(cmd=self.cmd, num_cores=1)
 
@@ -54,7 +53,8 @@ class TestLocalQServer(unittest.TestCase):
 
         # This just duplicated the real code.
         # At least it protects against unexpected regression.
-        expected_str = "\t".join(["JOBID", "PRIO", "STATUS", "NUM_CORES", "START_TIME", "END_TIME", "NAME", "CMD", "\n"])
+        expected_str = "\t".join(["JOBID", "PRIO", "STATUS", "NUM_CORES",
+                                  "START_TIME", "END_TIME", "NAME", "CMD", "\n"])
         for j in self.server.jobs():
             expected_str += j.info() + "\n"
         expected_str = expected_str.strip("\n")
@@ -141,6 +141,7 @@ class TestLocalQServer(unittest.TestCase):
         self.add_some_jobs()
         result = self.server.get_node_with_name("localq-1")
         self.assertEqual(result.jobid, 1)
+
 
 if __name__ == '__main__':
     unittest.main()

@@ -4,15 +4,12 @@ LocalQServer
 
 import time
 import threading
-import localq
-from operator import methodcaller
 from localq.Status import Status
 import networkx as nx
 import os
-from JobPrioritizer import JobPrioritizer as prioritizer
-from importlib import import_module
+from localq.JobPrioritizer import JobPrioritizer as Prioritizer
+from localq.Job import Job
 
-#prioritizer = import_module("localq.JobPrioritizer")
 
 class LocalQServer():
     def __init__(self, num_cores_available, interval, priority_method="fifo", use_shell=False):
@@ -27,7 +24,7 @@ class LocalQServer():
     def get_pid(self):
         return self.pid
 
-    def add(self, cmd, num_cores, rundir=".", stdout=None, stderr=None, name=None, dependencies=[]):
+    def add(self, cmd, num_cores, rundir=".", stdout=None, stderr=None, name=None, dependencies=None):
         """
         Add a job to the queue. Dependencies need to be empty or all have status COMPLETED for
         a job to run.
@@ -43,23 +40,25 @@ class LocalQServer():
         """
 
         job_id = self._get_new_jobid()
-        job = localq.Job(job_id, cmd, num_cores, stdout=stdout, stderr=stderr,
-                         rundir=rundir, name=name, use_shell=self.use_shell,
-                         dependencies=dependencies)
+        job = Job(job_id, cmd, num_cores, stdout=stdout, stderr=stderr,
+                  rundir=rundir, name=name, use_shell=self.use_shell,
+                  dependencies=dependencies)
 
         # if number of requested cores is bigger then the number of cores available to the system, fail submission.
         if job.num_cores > self.num_cores_available:
             return None
         else:
             self.graph.add_node(job)
-            for dependency_job_id in dependencies:
+            # If we have no dependencies get an empty list.
+            for dependency_job_id in dependencies or []:
                 dependency_job = self.get_job_with_id(dependency_job_id)
                 self.graph.add_edge(dependency_job, job)
             return job.jobid
 
-    def add_script(self, script, num_cores, rundir=".", stdout=None, stderr=None, name=None, dependencies=[]):
+    def add_script(self, script, num_cores, rundir=".", stdout=None, stderr=None, name=None, dependencies=None):
         cmd = ["sh", script]
-        return self.add(cmd, num_cores, stdout=stdout, stderr=stderr, rundir=rundir, name=name)
+        return self.add(cmd, num_cores, stdout=stdout, stderr=stderr, rundir=rundir, name=name,
+                        dependencies=dependencies)
 
     def _get_new_jobid(self):
         """
@@ -122,7 +121,7 @@ class LocalQServer():
             job.kill()
 
     def _prioritize(self, pending_jobs):
-        use_this_prioritzer = getattr(prioritizer, self.priority_method)
+        use_this_prioritzer = getattr(Prioritizer, self.priority_method)
         return use_this_prioritzer(
             pending_jobs,
             cores_available=self.num_cores_available,
