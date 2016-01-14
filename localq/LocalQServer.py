@@ -8,7 +8,7 @@ import localq
 from localq.Status import Status
 import networkx as nx
 import os
-from JobPrioritizer import JobPrioritizer as prioritizer
+from JobPrioritizer import JobPrioritizer as Prioritizer
 
 class LocalQServer():
     def __init__(self, num_cores_available, interval, priority_method="fifo", use_shell=False):
@@ -119,7 +119,7 @@ class LocalQServer():
             job.kill()
 
     def _prioritize(self, pending_jobs):
-        use_this_prioritzer = getattr(prioritizer, self.priority_method)
+        use_this_prioritzer = getattr(Prioritizer, self.priority_method)
         return use_this_prioritzer(
             pending_jobs,
             cores_available=self.num_cores_available,
