@@ -5,7 +5,7 @@ start a localq server
 
 import logging
 import Pyro4
-from localq.LocalQServer import LocalQServer
+from localq.localQ_server import LocalQServer
 import argparse
 import sys
 import os

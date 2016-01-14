@@ -1,7 +1,7 @@
 import unittest
-from localq.LocalQServer import LocalQServer
-from localq.Job import Job
-from localq.Status import Status
+from localq.localQ_server import LocalQServer
+from localq.job import Job
+from localq.status import Status
 from mock import patch, MagicMock
 import networkx
 import time

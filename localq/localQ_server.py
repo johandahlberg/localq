@@ -4,11 +4,11 @@ LocalQServer
 
 import time
 import threading
-from localq.Status import Status
+from localq.status import Status
 import networkx as nx
 import os
-from localq.JobPrioritizer import JobPrioritizer as Prioritizer
-from localq.Job import Job
+from localq.job_prioritizer import JobPrioritizer as Prioritizer
+from localq.job import Job
 
 
 class LocalQServer():
