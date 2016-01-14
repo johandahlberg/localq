@@ -54,8 +54,9 @@ class Job:
             self.proc = None
             self._failed_to_start = True
 
-    def _get_formatted_now(self):
-        return datetime.datetime.strftime(datetime.datetime.now(), '%Y%m%dT%H%M%S')
+    @staticmethod
+    def _get_formatted_now():
+        return datetime.datetime.now().strftime('%Y%m%dT%H%M%S')
 
     def kill(self):
         """Send the jobs process SIGTERM
