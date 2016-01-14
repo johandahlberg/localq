@@ -2,6 +2,9 @@
 
 class JobPrioritizer:
 
+    def __init__(self):
+        pass
+
     @staticmethod
     def fifo(pending_jobs, **kwargs):
         """
