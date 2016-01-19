@@ -6,9 +6,9 @@ import tempfile
 import os
 
 from mock import MagicMock, patch
-from localq.Status import Status
+from localq.status import Status
 
-from localq.Job import Job
+from localq.job import Job
 
 
 class TestJob(unittest.TestCase):

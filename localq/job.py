@@ -2,7 +2,7 @@ import os
 import signal
 import subprocess
 import datetime
-from localq.Status import Status
+from localq.status import Status
 
 __author__ = 'dankle'
 

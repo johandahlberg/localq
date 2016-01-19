@@ -4,8 +4,8 @@ import unittest
 
 from random import shuffle
 
-from localq.Job import Job
-from localq.JobPrioritizer import JobPrioritizer as Prioritizer
+from localq.job import Job
+from localq.job_prioritizer import JobPrioritizer as Prioritizer
 
 
 class TestJobPrioritizer(unittest.TestCase):
