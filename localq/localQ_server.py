@@ -4,6 +4,9 @@ LocalQServer
 
 import time
 import threading
+
+import sys
+
 from localq.status import Status
 import networkx as nx
 import os
@@ -139,8 +142,8 @@ class LocalQServer():
         return n_cores_booked
 
     def run(self):
-        print "Starting localqd with {0} available cores".format(self.num_cores_available)
-        print "Checking queue every {0} seconds".format(self.interval)
+        sys.stderr.write("Starting localqd with {0} available cores.\n".format(self.num_cores_available))
+        sys.stderr.write("Checking queue every {0} seconds\n\n".format(self.interval))
 
         def check_queue():
             while True:
