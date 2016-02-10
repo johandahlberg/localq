@@ -163,18 +163,21 @@ class LocalQServer():
         thread.setDaemon(True)
         thread.start()
 
+    def has_finished(self):
+        has_f = True
+        s = self.get_status_all()
+        for jobid in s:
+            # if any job has status running or pending,
+            # the pipeline needs to run
+            if s[jobid] in [Status.RUNNING, Status.PENDING]:
+                has_f = False
+        return has_f
+
+
     def wait(self):
         while True:
             time.sleep(self.interval)
-            keep_alive = False
-            s = self.get_status_all()
-            for jobid in s:
-                # if any job has status running or pending,
-                # the pipeline needs to run
-                if s[jobid] in [Status.RUNNING, Status.PENDING]:
-                    keep_alive = True
-
-            if not keep_alive:
+            if self.has_finished():
                 break
 
     def get_server_cores(self):
