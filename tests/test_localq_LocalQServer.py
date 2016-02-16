@@ -117,9 +117,9 @@ class TestLocalQServer(unittest.TestCase):
         self.assertEqual(self.server.get_server_cores(), self.server.num_cores_available)
 
     def test_write_dot(self):
-        with patch.object(networkx, "write_dot", return_value=None) as mock_write_dot:
-            self.server.write_dot("/foo")
-            mock_write_dot.assert_called_with(self.server.graph, "/foo")
+        with patch.object(networkx.drawing.nx_pydot, "write_dot", return_value=None) as mock_write_dot:
+            self.server.write_dot("/tmp/foo")
+            mock_write_dot.assert_called_with(self.server.graph, "/tmp/foo")
 
     def test_get_ordered_jobs(self):
         self.add_some_jobs()

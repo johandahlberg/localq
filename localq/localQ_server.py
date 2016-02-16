@@ -7,6 +7,8 @@ import threading
 
 import sys
 
+from networkx.drawing.nx_pydot import write_dot
+
 from localq.status import Status
 import networkx as nx
 import os
@@ -191,7 +193,7 @@ class LocalQServer():
         :param f: file to write
         :return: None
         """
-        nx.write_dot(self.graph, f)
+        write_dot(self.graph, f)
 
     def get_ordered_jobs(self):
         """ Method to order the tasks in the pipeline

@@ -1,4 +1,4 @@
 mock
 Pyro4>=4.39
 networkx
-
+pydotplus
