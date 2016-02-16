@@ -129,6 +129,22 @@ class Job:
              str(" ".join(self.cmd))]
         )
 
+    def info_dict(self):
+        """
+        Get job info in dict format
+        :return:
+        """
+        return dict(jobid=self.jobid,
+                    status=self.status(),
+                    num_cores=self.num_cores,
+                    start_time=self.start_time,
+                    end_time=self.end_time,
+                    name=self.name,
+                    cmd=" ".join(self.cmd),
+                    dependencies=self.dependencies)
+
+
+
     def __hash__(self):
         return self.jobid
 
