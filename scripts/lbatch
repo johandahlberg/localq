@@ -22,7 +22,7 @@ def parse_cli():
     args.pop(0)  # remove script name itself
 
     if len(args) == 0:
-        print usage
+        print(usage)
         sys.exit(1)
 
     cliargs = {'-n': 1,
@@ -33,14 +33,14 @@ def parse_cli():
 
     while str(args[0]) in cliargs.keys():
         if args[0] == '-h':
-            print usage
+            print(usage)
             sys.exit(1)
         cliargs[args[0]] = args[1]
         args.pop(0)
         args.pop(0)
 
     if len(args) == 0:
-        print usage
+        print(usage)
         sys.exit(1)
 
     return (cliargs, args)
@@ -58,7 +58,7 @@ def main():
         uri = str(pf.read().strip())
         pf.close()
     else:
-        print "Could not find file " + str(urifile) + ". Is the localq daemon running?"
+        print("Could not find file " + str(urifile) + ". Is the localq daemon running?")
         sys.exit(1)
 
     localqd = Pyro4.Proxy(uri)
@@ -67,10 +67,10 @@ def main():
     if requested_cores <= num_server_cores:
         jobid = localqd.add(num_cores=requested_cores, cmd=cmd, rundir=os.getcwd(),
                             stderr=cliargs["-o"], stdout=cliargs["-o"], name=cliargs['-J'])
-        print "Job added to the queue with id " + str(jobid)
+        print("Job added to the queue with id " + str(jobid))
         return 0
     else:
-        print "ERROR: Tried to submit job with more requested cores than available on the server. Job would never run."
+        print("ERROR: Tried to submit job with more requested cores than available on the server. Job would never run.")
         return 1
 
 

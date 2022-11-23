@@ -65,9 +65,9 @@ class LocalQDaemon(localq.Daemon):
         import stat
         os.chmod(self.urifile, stat.S_IRUSR)
 
-        print self.uri
-        print self.urifile
-        print self.pidfile
+        print(self.uri)
+        print(self.urifile)
+        print(self.pidfile)
 
         self.localqserver.run()
         self.pyrodaemon.requestLoop()

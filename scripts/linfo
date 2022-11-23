@@ -21,17 +21,16 @@ def main():
         uri = str(pf.read().strip())
         pf.close()
     else:
-        print "Could not find file " + str(urifile) + ". Is the localq daemon running?"
+        print("Could not find file " + str(urifile) + ". Is the localq daemon running?")
         sys.exit(1)
 
     localqd = Pyro4.Proxy(uri)
     status = localqd.get_status(opts.j)
     if status:
-        print status
+        print(status)
     else:
-        print "No job with ID " + str(opts.j) + " could be found."
+        print("No job with ID " + str(opts.j) + " could be found.")
         sys.exit(1)
 
 if __name__ == "__main__":
     sys.exit(main())
-
