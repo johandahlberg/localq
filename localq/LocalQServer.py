@@ -116,12 +116,12 @@ class LocalQServer():
 
     def stop_all_jobs(self):
         for job in self.jobs():
-            print "Sending SIGKILL to " + str(job.jobid)
+            print("Sending SIGKILL to " + str(job.jobid))
             job.kill()
 
     def run(self):
-        print "Starting localqd with {0} available cores".format(self.num_cores_available)
-        print "Checking queue every {0} seconds".format(self.interval)
+        print("Starting localqd with {0} available cores".format(self.num_cores_available))
+        print("Checking queue every {0} seconds".format(self.interval))
 
         def get_n_cores_booked():
             n_cores_booked = 0

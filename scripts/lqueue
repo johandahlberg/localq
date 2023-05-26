@@ -22,7 +22,7 @@ def parse_cli():
     if args:
         while str(args[0]) in cliargs.keys():
             if args[0] == '-h':
-                print usage
+                print(usage)
                 sys.exit(1)
             cliargs[args[0]] = args[1]
             args.pop(0)
@@ -41,11 +41,11 @@ def main():
         uri = str(pf.read().strip())
         pf.close()
     else:
-        print "Could not find file " + str(urifile) + ". Is the localq daemon running?"
+        print("Could not find file " + str(urifile) + ". Is the localq daemon running?")
         sys.exit(1)
 
     localqd = Pyro4.Proxy(uri)
-    print localqd.list_queue()
+    print(localqd.list_queue())
 
 if __name__ == "__main__":
     sys.exit(main())
